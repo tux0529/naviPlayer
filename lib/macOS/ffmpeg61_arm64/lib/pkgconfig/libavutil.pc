@@ -1,0 +1,14 @@
+prefix=/Users/redtux/Apps/ffmpeg61_a
+exec_prefix=${prefix}
+libdir=/Users/redtux/Apps/ffmpeg61_a/lib
+includedir=/Users/redtux/Apps/ffmpeg61_a/include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 58.29.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm -framework VideoToolbox -framework CoreFoundation -framework CoreMedia -framework CoreVideo -framework CoreServices
+Cflags: -I${includedir}

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/playMask.png</file>
+        <file>images/getCoverArt.jpeg</file>
+    </qresource>
+</RCC>

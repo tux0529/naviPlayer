@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/">
+        <file>theme/black.css</file>
+        <file>theme/black/add_bottom.png</file>
+        <file>theme/black/add_left.png</file>
+        <file>theme/black/add_right.png</file>
+        <file>theme/black/add_top.png</file>
+        <file>theme/black/branch_close.png</file>
+        <file>theme/black/branch_open.png</file>
+        <file>theme/black/calendar_nextmonth.png</file>
+        <file>theme/black/calendar_prevmonth.png</file>
+        <file>theme/black/checkbox_checked_disable.png</file>
+        <file>theme/black/checkbox_checked.png</file>
+        <file>theme/black/checkbox_parcial_disable.png</file>
+        <file>theme/black/checkbox_parcial.png</file>
+        <file>theme/black/checkbox_unchecked_disable.png</file>
+        <file>theme/black/checkbox_unchecked.png</file>
+        <file>theme/black/radiobutton_checked_disable.png</file>
+        <file>theme/black/radiobutton_checked.png</file>
+        <file>theme/black/radiobutton_unchecked_disable.png</file>
+        <file>theme/black/radiobutton_unchecked.png</file>
+        <file>theme/black/spliter_handle.png</file>
+        <file>theme/black/nav_genresButton.png</file>
+        <file>theme/black/nav_albumListButton.png</file>
+        <file>theme/black/nav_artistButton.png</file>
+        <file>theme/black/nav_favoritesButton.png</file>
+        <file>theme/black/nav_homeButton.png</file>
+        <file>theme/black/nav_playlistsButton.png</file>
+        <file>theme/black/nav_tracksButton.png</file>
+    </qresource>
+</RCC>

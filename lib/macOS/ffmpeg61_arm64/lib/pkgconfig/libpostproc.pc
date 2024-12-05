@@ -1,0 +1,14 @@
+prefix=/Users/redtux/Apps/ffmpeg61_a
+exec_prefix=${prefix}
+libdir=/Users/redtux/Apps/ffmpeg61_a/lib
+includedir=/Users/redtux/Apps/ffmpeg61_a/include
+
+Name: libpostproc
+Description: FFmpeg postprocessing library
+Version: 57.3.100
+Requires: 
+Requires.private: libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lpostproc 
+Libs.private: -lm
+Cflags: -I${includedir}

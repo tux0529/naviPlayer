@@ -1,0 +1,33 @@
+#include "winver.h"
+
+IDI_ICON1 ICON DISCARDABLE "naviPlayer.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
+ FILEFLAGS 0x0L
+ FILEFLAGSMASK 0x3fL
+ FILEOS 0x00040004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "redtux@qq.com"
+            VALUE "FileDescription", "A Navidrome/Subsonic clients"
+            VALUE "FileVersion", "0.0.1.0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 redtux."
+            VALUE "InternalName", "naviPlayer"
+            VALUE "OriginalFilename", "naviPlayer.exe"
+            VALUE "ProductName", "naviPlayer"
+            VALUE "ProductVersion", "0.0.1.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+

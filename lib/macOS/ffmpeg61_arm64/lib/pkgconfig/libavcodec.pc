@@ -1,0 +1,14 @@
+prefix=/Users/redtux/Apps/ffmpeg61_a
+exec_prefix=${prefix}
+libdir=/Users/redtux/Apps/ffmpeg61_a/lib
+includedir=/Users/redtux/Apps/ffmpeg61_a/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 60.31.102
+Requires: 
+Requires.private: libswresample >= 4.12.100, libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lavcodec 
+Libs.private: -pthread -liconv -lm -L/opt/local/lib -lfdk-aac -L/opt/local/lib -lopus -L/opt/local/lib -lvorbis -L/opt/local/lib -lz
+Cflags: -I${includedir}
