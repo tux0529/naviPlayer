@@ -238,6 +238,101 @@ void MediaHelper::getArtists()
 
 }
 
+ArtistObject MediaHelper::getArtist(const QString &id)
+{
+
+    QString questString = questStringBuilder("getArtist");
+
+    questString += QString("&id=%1").arg(id);
+
+    QNetworkRequest quest;
+    quest.setUrl(QUrl(questString));
+
+    QNetworkReply *reply = m_manager->get(quest);
+
+    QEventLoop eventLoop;
+    connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    QString replyString = reply->readAll();
+    reply->deleteLater();
+    reply = nullptr;
+
+    QDomDocument doc;
+    if(!doc.setContent(replyString) ){
+        Config::G_Debug("Out put is not XML data");
+    }
+
+    QDomElement root = doc.documentElement();
+
+    QDomElement artistEle = root.firstChildElement("artist");
+
+    ArtistObject artObject;
+
+    /*
+     * <artist
+     * id="bee8a9731824964a9c4cf05199ce8051"
+     * name="Brian Crain"
+     * coverArt="ar-bee8a9731824964a9c4cf05199ce8051_0"
+     * albumCount="14"
+     * starred="2023-12-30T14:38:07Z"
+     * artistImageUrl="https://www.redtux.cn:619/share/img/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFyLWJlZThhOTczMTgyNDk2NGE5YzRjZjA1MTk5Y2U4MDUxXzAiLCJpc3MiOiJORCJ9.WlJ3pHUvHF17BkvnehKzX4WpaLRRJVdlIyfcXOz7SpM?size=600">
+     */
+
+    artObject.setId(artistEle.attribute("id"));
+    artObject.setName(artistEle.attribute("name"));
+    artObject.setIcon( MediaHelper::Instance()->getCoverArt(artObject.id(), MediaHelper::ArtistCover, MediaHelper::Icon));
+
+    QDomNodeList list = artistEle.elementsByTagName("album");
+
+    for (int i = 0; i < list.count(); i++) {
+
+        QDomElement element = list.at(i).toElement();
+        /*
+         * <album
+         * id="8fe5deb8d124a87fbf0504d4389977cc"
+         * parent="bee8a9731824964a9c4cf05199ce8051"
+         * isDir="true"
+         * title="Sienna"
+         * name="Sienna"
+         * album="Sienna"
+         * artist="Brian Crain"
+         * year="2003"
+         * genre="现代器乐"
+         * coverArt="al-8fe5deb8d124a87fbf0504d4389977cc_64c10fdc"
+         * duration="2753"
+         * playCount="30"
+         * created="2023-07-29T04:46:34.529530772Z"
+         * artistId="bee8a9731824964a9c4cf05199ce8051"
+         * songCount="12"
+         * isVideo="false"
+         * played="2024-11-07T01:50:55.947821163+08:00"
+         * bpm="0"
+         * comment=""
+         * sortName=""
+         * mediaType="album"
+         * musicBrainzId=""
+         * channelCount="0"
+         * samplingRate="0">
+         */
+
+        Album abm;
+
+        abm.setId(element.attribute("id"));
+        abm.setName(element.attribute("title"));
+        abm.setArtist(element.attribute("artist"));
+        abm.setArtistId(element.attribute("artistId"));
+        abm.setSongCount(element.attribute("songCount").toInt());
+        abm.setDuration(durationToString(element.attribute("duration").toInt()));
+
+        s_self->getCoverArt(abm.id());
+
+        artObject.addAlbum(abm);
+
+    }
+    return artObject;
+}
+
 void MediaHelper::getGenres()
 {
 
@@ -415,7 +510,7 @@ QList<PlayList> MediaHelper::getPlaylists()
     return playLists;
 }
 
-TrackList MediaHelper::getPlaylist(const QString &listId)
+PlayListObject MediaHelper::getPlaylist(const QString &listId)
 {
     QString questString = questStringBuilder("getPlaylist");
 
@@ -441,49 +536,71 @@ TrackList MediaHelper::getPlaylist(const QString &listId)
 
     QDomElement root = doc.documentElement();
 
-    QDomNodeList list = root.elementsByTagName("entry");
+    QDomElement playlistEle = root.firstChildElement("playlist");
 
-    TrackList trackLists;
+    PlayListObject plObject;
+
+    /*
+     * <playlist id="b01d162c-f53f-408f-b363-9e3944318997"
+     * name="Brian.Crain"
+     * songCount="174"
+     * duration="40183"
+     * public="false"
+     * owner="redtux"
+     * created="2023-07-29T10:34:40.436498638Z"
+     * changed="2023-07-29T10:39:22Z"
+     * coverArt="pl-b01d162c-f53f-408f-b363-9e3944318997_64c4ec5a">
+     */
+
+    plObject.setId(playlistEle.attribute("id"));
+    plObject.setName(playlistEle.attribute("name"));
+    plObject.setSongCount(playlistEle.attribute("songCount").toInt());
+    plObject.setDuration(playlistEle.attribute("duration").toInt());
+    plObject.setOwner(playlistEle.attribute("owner"));
+    plObject.setModfiyTime(playlistEle.attribute("changed"));
+    plObject.setIcon( MediaHelper::Instance()->getCoverArt(plObject.id(), MediaHelper::PlayListCover, MediaHelper::Icon));
+
+    QDomNodeList list = playlistEle.elementsByTagName("entry");
 
     for (int i = 0; i < list.count(); i++) {
 
         QDomElement element = list.at(i).toElement();
         /*
-<entry
-//id="ed823aef832e2b6fe1d6d63c3f2b9d9d"
-//parent="05b234e7e0467ddfef55a8133a0d8a8a"
-isDir="false"
-//title="Wild River"
-//album="Northern Sky"
-//artist="Brian Crain"
-//track="5"
-year="2000"
-//genre="现代器乐"
-//coverArt="mf-ed823aef832e2b6fe1d6d63c3f2b9d9d_64c10e11"
-
-//size="7105454"
-contentType="audio/mp4"
-//suffix="m4a"
-//duration="217"
-//bitRate="257"
-path="Brian Crain/Northern Sky/05 - Wild River.m4a"
-playCount="1"
-discNumber="1"
-created="2023-07-29T04:46:33.487630991Z"
-//albumId="05b234e7e0467ddfef55a8133a0d8a8a"
-//artistId="bee8a9731824964a9c4cf05199ce8051"
-type="music"
-isVideo="false"
-played="2023-07-31T08:01:05Z"
-bpm="0" comment=""
-sortName=""
-mediaType="song"
-musicBrainzId=""
-channelCount="2"
-samplingRate="0">
-<replayGain trackPeak="1" albumPeak="1"/>
-</entry>
-        */
+         *
+         * <entry
+         * //id="ed823aef832e2b6fe1d6d63c3f2b9d9d"
+         * //parent="05b234e7e0467ddfef55a8133a0d8a8a"
+         * isDir="false"
+         * //title="Wild River"
+         * //album="Northern Sky"
+         * //artist="Brian Crain"
+         * //track="5"
+         * year="2000"
+         * //genre="现代器乐"
+         * //coverArt="mf-ed823aef832e2b6fe1d6d63c3f2b9d9d_64c10e11"
+         * //size="7105454"
+         * contentType="audio/mp4"
+         * //suffix="m4a"
+         * //duration="217"
+         * //bitRate="257"
+         * path="Brian Crain/Northern Sky/05 - Wild River.m4a"
+         * playCount="1"
+         * discNumber="1"
+         * created="2023-07-29T04:46:33.487630991Z"
+         * //albumId="05b234e7e0467ddfef55a8133a0d8a8a"
+         * //artistId="bee8a9731824964a9c4cf05199ce8051"
+         * type="music"
+         * isVideo="false"
+         * played="2023-07-31T08:01:05Z"
+         * bpm="0" comment=""
+         * sortName=""
+         * mediaType="song"
+         * musicBrainzId=""
+         * channelCount="2"
+         * samplingRate="0">
+         * <replayGain trackPeak="1" albumPeak="1"/>
+         * </entry>
+         */
 
         Track tk;
         tk.setId(element.attribute("id"));
@@ -496,10 +613,10 @@ samplingRate="0">
         tk.setAlbumId(element.attribute("albumId"));
         tk.setArtistId(element.attribute("artistId"));
 
-        trackLists << tk;
+        plObject.addTrack(tk);
 
     }
-    return trackLists;
+    return plObject;
 }
 
 AlbumObject MediaHelper::getAlbum(const QString &albumId)

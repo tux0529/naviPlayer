@@ -12,12 +12,8 @@ void AlbumObject::addTracks(TrackList &sl)
     m_trackList << sl;
 }
 
-Track AlbumObject::at(int index)
+const Track &AlbumObject::at(int index)
 {
-    if(index < 0 || index >= m_trackList.size()){
-        Track tk;
-        return tk;
-    }
     return m_trackList.at(index);
 }
 

@@ -16,6 +16,7 @@ class QPushButton;
 class PlayQueueWidget;
 class PlaylistsPage;
 class AlbumInfoPage;
+class PlaylistInfoPage;
 
 class PlaybackQueue;
 
@@ -64,6 +65,8 @@ private slots:
 
     void onPlayButtonClicked();
 
+    void onPlaylistDClicked(const QString &id);
+
     void onLinkClicked(const QString &link);
 
     void onPlayAlbum(const QString &albumId);
@@ -95,6 +98,7 @@ private:
     PlaylistsPage *m_playlistsPage;
 
     AlbumInfoPage *m_albumInfoPage;
+    PlaylistInfoPage *m_playlistInfoPage;
 
     PlaybackQueue *m_playbackQueue;
     PlayQueueWidget *m_playbackWidget;

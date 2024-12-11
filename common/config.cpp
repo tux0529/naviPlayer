@@ -171,16 +171,13 @@ void Config::initConfigValue(){
                "PRIMARY KEY(id AUTOINCREMENT));");
 
     ret = query.exec("INSERT INTO servers (name, url, user, password, usetoken, version )"
-                     " VALUES ( 'Navidrome@Redtux', 'https://www.redtux.cn:619/', 'redtux', '1fzz9ct$ND', 1, '1.16.1');");
-
-    ret = query.exec("INSERT INTO servers (name, url, user, password, usetoken, version )"
                      " VALUES ( 'Navidrome@Demo', 'https://demo.navidrome.org/', 'demo', 'demo', 1, '1.16.1');");
 
     //Config::G_Debug("INSERT DATA servers:",ret );
 
     ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'volumeValue', '100');");
 
-    ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'currentSever', 'Navidrome@Redtux');");
+    ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'currentSever', 'Navidrome@Demo');");
 
     setValue("albumCountPerPage", "50");
 

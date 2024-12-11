@@ -12,6 +12,8 @@
 #include "playqueuewidget.h"
 #include "playlistspage.h"
 #include "albuminfopage.h"
+#include "playlistinfopage.h"
+
 #include "genrelistpage.h"
 
 #include <QDir>
@@ -43,6 +45,7 @@ MainWidget::MainWidget(QWidget *parent)
     , m_favoritesPage (new FavoritesPage(this))
     , m_playlistsPage (new PlaylistsPage(this))
     , m_albumInfoPage (new AlbumInfoPage(this))
+    , m_playlistInfoPage (new PlaylistInfoPage(this))
     , m_playbackQueue(new PlaybackQueue(this))
     , m_playbackWidget(new PlayQueueWidget(m_playbackQueue, this))
     , m_player(new AudioPlayer(this))
@@ -232,16 +235,21 @@ void MainWidget::initForm()
 
     //Init Favorites Page
     m_favoritesPage->setObjectName(QString::fromUtf8("favoritesPage"));
-    //connect(m_homePage, SIGNAL(linkClicked(const QString &)), this, SLOT(onLinkClicked(const QString &)));
+    //connect(m_favoritesPage, SIGNAL(linkClicked(const QString &)), this, SLOT(onLinkClicked(const QString &)));
     ui->stackedWidget->insertWidget(4, m_favoritesPage);
 
     //Init Playlists Page
     m_playlistsPage->setObjectName(QString::fromUtf8("playlistsPage"));
     ui->stackedWidget->insertWidget(5, m_playlistsPage);
+    connect(m_playlistsPage, SIGNAL(rowDoubleClicked(const QString &)), this, SLOT(onPlaylistDClicked(const QString &)));
 
-    //Init Songlist Page
+    //Init Album Info Page
     m_albumInfoPage->setObjectName(QString::fromUtf8("albumInfoPage"));
     ui->stackedWidget->insertWidget(6, m_albumInfoPage);
+
+    //Init PlaylistInfo Page
+    m_playlistInfoPage->setObjectName(QString::fromUtf8("playlistInfoPage"));
+    ui->stackedWidget->insertWidget(7, m_playlistInfoPage);
 
     //设置左侧导航按钮
     QList<QPushButton *> btns = ui->leftWidget->findChildren<QPushButton *>();
@@ -417,6 +425,12 @@ void MainWidget::onPlayButtonClicked()
 
     m_player->play();
 
+}
+
+void MainWidget::onPlaylistDClicked(const QString &id)
+{
+    m_playlistInfoPage->loadPlaylist(id);
+    ui->stackedWidget->setCurrentWidget(m_playlistInfoPage);
 }
 
 void MainWidget::onLinkClicked(const QString &link)

@@ -30,6 +30,7 @@ SOURCES += \
     common/anchoritemdelegate.cpp \
     common/anchortableview.cpp \
     common/artist.cpp \
+    common/artistobject.cpp \
     common/config.cpp \
     common/genre.cpp \
     common/mediabase.cpp \
@@ -52,9 +53,9 @@ SOURCES += \
     pages/favoritespage.cpp \
     pages/genrelistpage.cpp \
     pages/homepage.cpp \
+    pages/playlistinfopage.cpp \
     pages/playlistspage.cpp \
     pages/playqueuewidget.cpp \
-    pages/songlistmodel.cpp \
     servermanagewidget.cpp
 
 HEADERS += \
@@ -69,6 +70,7 @@ HEADERS += \
     common/anchoritemdelegate.h \
     common/anchortableview.h \
     common/artist.h \
+    common/artistobject.h \
     common/config.h \
     common/genre.h \
     common/mediabase.h \
@@ -90,9 +92,9 @@ HEADERS += \
     pages/favoritespage.h \
     pages/genrelistpage.h \
     pages/homepage.h \
+    pages/playlistinfopage.h \
     pages/playlistspage.h \
     pages/playqueuewidget.h \
-    pages/songlistmodel.h \
     servermanagewidget.h
 
 FORMS += \
@@ -105,6 +107,7 @@ FORMS += \
     pages/favoritespage.ui \
     pages/genrelistpage.ui \
     pages/homepage.ui \
+    pages/playlistinfopage.ui \
     pages/playlistspage.ui \
     pages/playqueuewidget.ui \
     servermanagewidget.ui

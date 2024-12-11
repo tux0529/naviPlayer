@@ -15,9 +15,11 @@ public:
     const QString &owner() const { return this->m_owner;}
     void setOwner( const QString &owner);
 
-    void addTrack(Track &tk);
+    void addTrack(const Track &tk);
+    void addTracks(const TrackList &tl);
 
-    void addTracks(TrackList &tl);
+    const Track &at(int index);
+    const TrackList &tracks();
 
 private:
 

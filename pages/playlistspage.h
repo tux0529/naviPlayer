@@ -46,7 +46,7 @@ public:
 
 signals:
     void linkActivated(const QString &);
-    void rowDoubleClicked();
+    void rowDoubleClicked(const QString &id);
 
 protected:
     void resizeEvent(QResizeEvent *event);

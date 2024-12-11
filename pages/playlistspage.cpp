@@ -126,8 +126,7 @@ PlaylistsPage::~PlaylistsPage()
 
 void PlaylistsPage::onRowDoubleClicked(const QModelIndex &index)
 {
-
-    emit rowDoubleClicked();
+    emit rowDoubleClicked(m_playlistsModel->data(index, Qt::UserRole).toString());
 }
 
 void PlaylistsPage::initForm()

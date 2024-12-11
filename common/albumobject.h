@@ -20,7 +20,7 @@ public:
     void addTrack(Track &s);
     void addTracks(TrackList &sl);
 
-    Track at(int index);
+    const Track &at(int index);
     const TrackList &tracks();
 
 private:

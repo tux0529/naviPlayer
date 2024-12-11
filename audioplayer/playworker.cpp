@@ -235,6 +235,17 @@ void PlayWorker::decodeAudio()
     /*
      * Create a resampler context for the conversion.
      * Set the conversion parameters.
+     *
+     * int swr_alloc_set_opts2	(	struct SwrContext ** 	ps,
+     *                              const AVChannelLayout * 	out_ch_layout,
+     *                              enum AVSampleFormat 	out_sample_fmt,
+     *                              int 	out_sample_rate,
+     *                              const AVChannelLayout * 	in_ch_layout,
+     *                              enum AVSampleFormat 	in_sample_fmt,
+     *                              int 	in_sample_rate,
+     *                              int 	log_offset,
+     *                              void * 	log_ctx
+     *                          )
      */
     error = swr_alloc_set_opts2(&m_swr_ctx,
                                 &out_channel_layout,
@@ -273,6 +284,20 @@ void PlayWorker::decodeAudio()
 
     /* Allocate a memory block */
     m_audio_out_buffer = (uint8_t*)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
+
+    // error = av_samples_alloc_array_and_samples( (*m_audio_out_buffer),
+    //                                            NULL,
+    //                                            out_channel_layout,
+    //                                            frame_size,
+    //                                            out_sample_fmt,
+    //                                            0);
+    // int av_samples_alloc_array_and_samples(	uint8_t *** 	audio_data,
+    //                                        int * 	linesize,
+    //                                        int 	nb_channels,
+    //                                        int 	nb_samples,
+    //                                        enum AVSampleFormat 	sample_fmt,
+    //                                        int 	align
+    //                                        )
 
     duration = av_q2d(aStream->time_base)*1000*aStream->duration;
 
@@ -505,7 +530,10 @@ void PlayWorker::freeAVMem()
     avformat_free_context(m_fmtCtx);
 
 
-    free(m_audio_out_buffer);
+    if (m_audio_out_buffer)
+        av_freep(&m_audio_out_buffer[0]);
+    av_freep(m_audio_out_buffer);
+    //free(m_audio_out_buffer);
 
 }
 

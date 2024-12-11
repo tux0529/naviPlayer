@@ -56,7 +56,7 @@ QVariant AlbumInfoModel::data(const QModelIndex &index, int role) const
         else if (index.column() == 1)
             return  QString("<style>a{color: #CCCCCC; text-decoration:none;}p{margin: 4px 0px;}</style><p>%1</p> <p><a href='search://artist=%2'>%2</a></p>").arg(trk.name(), trk.artist());
         else if (index.column() == 2)
-            return trk.album();
+            return trk.artist();
         else if (index.column() == 3)
             return trk.duration();
         break;
@@ -129,9 +129,10 @@ void AlbumInfoPage::loadAlbum(const QString &albumId)
     m_albumInfoModel->updateAlbum(albumId);
     ui->posterLabel->setPixmap(QPixmap(MediaHelper::Instance()->getCoverArt(m_albumObject.id(), MediaHelper::AlbumCover, MediaHelper::Poster)));
     ui->pageTitleLabel->setText(m_albumObject.name());
-    ui->pageInfoLabel->setText(tr("Album · %1 songs, %2 ")
+    ui->pageInfoLabel->setText(tr("Album by %3 · %1 songs, %2 ")
                                    .arg(m_albumObject.songCount() )
-                                   .arg( m_albumObject.duration() ));
+                                   .arg( m_albumObject.duration() )
+                                   .arg( m_albumObject.artist() ));
 }
 
 void AlbumInfoPage::initForm()

@@ -6,7 +6,9 @@
 #include "track.h"
 #include "genre.h"
 #include "artist.h"
+#include "artistobject.h"
 #include "playlist.h"
+#include "playlistobject.h"
 
 #include "config.h"
 
@@ -47,14 +49,18 @@ public:
     static const QIcon &getAlbumIcon(const QString &albumId);
 
     AlbumList getAlbumList(AlbumType type, int size = 20, int offset = 0);
-    QString getCoverArt(const QString &id, MediaHelper::CoverType type=AlbumCover, MediaHelper::CoverSize size = Cover);
+    AlbumObject getAlbum(const QString &albumId);
+
     void getArtists();
+    ArtistObject getArtist(const QString &id);
+
     void getGenres();
     void getFavorites();
-    QList<PlayList> getPlaylists();
-    TrackList getPlaylist(const QString &listId);
 
-    AlbumObject getAlbum(const QString &albumId);
+    QList<PlayList> getPlaylists();
+    PlayListObject getPlaylist(const QString &listId);
+
+    QString getCoverArt(const QString &id, MediaHelper::CoverType type=AlbumCover, MediaHelper::CoverSize size = Cover);
 
     QString getSongUrlbyId(const QString &id);
 
