@@ -1,35 +1,34 @@
 #include "cardwidget.h"
 #include "ui_cardwidget.h"
-#include <QDebug>
+#include <QPixmapCache>
 
 #include "floatframe.h"
+#include "mediahelper.h"
 
 const int CardWidget::width = 180;
 
-CardWidget::CardWidget(const QString &albumId,
-                       const QPixmap &icoPixmap,
-                       const QString &title,
-                       const QString &artistName,
+CardWidget::CardWidget(const Album &album,
                        QWidget *parent) :
       QWidget(parent)
     , ui(new Ui::CardWidget)
-    , m_albumId(albumId)
+    , m_album(album)
 {
     ui->setupUi(this);
     this->resize(CardWidget::width, CardWidget::width + 36);
     ui->icoLabel->resize(CardWidget::width, CardWidget::width);
     ui->icoLabel->setAlignment(Qt::AlignCenter);
-    QPixmap img = icoPixmap.scaled(CardWidget::width, CardWidget::width, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    ui->icoLabel->setPixmap(img);
+
+    QImage img(MediaHelper::Instance()->getCoverArt(m_album.id(), MediaHelper::AlbumCover, MediaHelper::Poster ));
+    ui->icoLabel->setPixmap(QPixmap::fromImage( img));
     ui->icoLabel->installEventFilter(this);
 
-    ui->titleLabel->setText(QString("<a style='color: #DCDCDC; text-decoration:none;' href='search://album=%1'>%2</a>").arg(m_albumId, title) );
+    ui->titleLabel->setText(QString("<a style='color: #DCDCDC; text-decoration:none;' href='search://album=%1'>%2</a>").arg(m_album.id(), m_album.name()) );
 
-    if (artistName.isEmpty())
+    if (m_album.artist().isEmpty())
         ui->artistLabel->setVisible(false);
     else {
         ui->artistLabel->setVisible(true);
-        ui->artistLabel->setText(QString("<a style='color: #DCDCDC; text-decoration:none;' href='search://artist=%1'>%1</a>").arg(artistName));
+        ui->artistLabel->setText(QString("<a style='color: #DCDCDC; text-decoration:none;' href='search://artist=%1'>%2</a>").arg(m_album.artistId(), m_album.artist()));
     }
 
     m_playFrame = new FloatFrame(this);
@@ -40,12 +39,16 @@ CardWidget::CardWidget(const QString &albumId,
     connect(ui->artistLabel, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkClicked(const QString &)));
     connect(m_playFrame, SIGNAL(mouseClicked()), this, SLOT(iconClicked()));
 
-    QPixmap imgPlay(":/images/playMask.png");
+    QPixmap maskPixmap;
+    if (!QPixmapCache::find("playMask", &maskPixmap)) {
+        maskPixmap.load(":/images/playMask.png");
+        QPixmapCache::insert("playMask", maskPixmap);
+    }
 
     m_label = new QLabel(m_playFrame);
 
-    m_label->resize(imgPlay.width(), imgPlay.height());
-    m_label->setPixmap(imgPlay);
+    m_label->resize(maskPixmap.width(), maskPixmap.height());
+    m_label->setPixmap(maskPixmap);
     m_label->setAutoFillBackground(false);
     m_label->setAttribute(Qt::WA_TranslucentBackground);
     m_playFrame->addWidget(m_label);
@@ -89,7 +92,7 @@ bool CardWidget::eventFilter(QObject *obj, QEvent *event)
 
 void CardWidget::iconClicked()
 {
-    emit playIconClicked(m_albumId);
+    emit playIconClicked(m_album.id());
 }
 
 

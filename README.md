@@ -7,4 +7,8 @@ naviPlayer是用Qt + FFMpeg写的Subsonic兼容的音乐客户端，现有优秀
 
 有了一个雏形，能播放音乐了，有些功能有待完善。
 
-![预览图](https://tux.red/images/naviPlayer-2024-12-05.png)
+![预览图](screenshots/home.png)
+
+![预览图](screenshots/album-list.png)
+
+![预览图](screenshots/album-info.png)

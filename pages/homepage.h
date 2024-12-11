@@ -20,8 +20,6 @@ public:
 signals:
     void linkClicked(const QString &link);
     void playAlbum(const QString &albumId);
-    void artistClicked(const QString &artist);
-    void albumClicked(const QString &album);
 private:
     Ui::HomePage *ui;
 };

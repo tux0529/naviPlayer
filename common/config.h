@@ -43,6 +43,7 @@ public:
 
     Server currentServer;
     ServerList servers;
+
     static Options s_options;
 
     static Config *Instance()
@@ -103,7 +104,8 @@ public:
     bool setValue(const QString &key, const QString &value);
 
     void addServer(Config::Server &srv);
-    Config::Server &getServerByName(const QString &name);
+    bool setCurrentSever(const QString &serverName);
+    Server getServerByName(const QString &name);
     bool serverSeted(){return  Instance()->m_serverSeted;}
 
 signals:

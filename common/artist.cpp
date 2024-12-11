@@ -2,7 +2,7 @@
 
 Artist::Artist()
 {
-
+    this->m_albumCount = 0;
 }
 
 Artist::Artist(const QString &id, const QString &name, int albumCount)

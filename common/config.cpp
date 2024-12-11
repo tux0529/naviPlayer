@@ -38,7 +38,7 @@ Config::Config(QObject *parent) : QObject(parent),
 
     m_dbFilePath = m_appDataDir + m_dbFileName;
 
-    reset();
+    //reset();
 
     if (!QFile::exists(m_dbFilePath)){
         initConfigValue();
@@ -170,6 +170,9 @@ void Config::initConfigValue(){
                "filepath TEXT,"
                "PRIMARY KEY(id AUTOINCREMENT));");
 
+    // ret = query.exec("INSERT INTO servers (name, url, user, password, usetoken, version )"
+    //                  " VALUES ( 'Navidrome@Redtux', 'https://www.redtux.cn:619/', 'redtux', '1fzz9ct$ND', 1, '1.16.1');");
+
     ret = query.exec("INSERT INTO servers (name, url, user, password, usetoken, version )"
                      " VALUES ( 'Navidrome@Demo', 'https://demo.navidrome.org/', 'demo', 'demo', 1, '1.16.1');");
 
@@ -177,7 +180,7 @@ void Config::initConfigValue(){
 
     ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'volumeValue', '100');");
 
-    ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'currentSever', 'Navidrome@Demo');");
+    // ret = query.exec("INSERT INTO config (name, value ) VALUES ( 'currentSever', 'Navidrome@Redtux');");
 
     setValue("albumCountPerPage", "50");
 
@@ -255,15 +258,56 @@ void Config::addServer(Server &srv)
         servers << srv;
 }
 
-Config::Server &Config::getServerByName(const QString &name)
+bool Config::setCurrentSever(const QString &serverName)
 {
+    bool ret = false;
+
+    self->currentServer = self->getServerByName(serverName);
+
+    ret = !self->currentServer.name.isEmpty();
+
+    if(ret){
+        ret = MediaHelper::Instance()->ping(self->currentServer);
+    }
+    if(ret)
+        self->setValue("currentSever", serverName);
+
+    return ret;
+
+}
+
+Config::Server Config::getServerByName(const QString &name)
+{
+
+    Config::Server srv;
 
     QSqlQuery query(m_configdb);
 
-    query.exec(QString("SELECT * FROM servers;"));
+    query.exec(QString("SELECT * FROM servers WHERE name='%1';").arg(name));
 
-    Config::Server server;
-    return server;
+    if(query.next()){
+        srv.name = query.value(1).toString();
+        srv.url = query.value(2).toString();
+        srv.user = query.value(3).toString();
+        srv.password = query.value(4).toString();
+        srv.useToken = ( 1 == query.value(5).toInt());
+        srv.version = query.value(6).toString();
+
+        if(srv.useToken){
+            srv.salt = "coming";
+            QByteArray ba;
+            ba.append(srv.password.toUtf8());
+            ba.append(srv.salt.toUtf8());
+
+            srv.token = QCryptographicHash::hash(ba, QCryptographicHash::Md5).toHex();
+
+            Config::G_Debug(srv.name, ":Token:",srv.token );
+
+        }
+
+    }
+
+    return srv;
 }
 
 void Config::reset()

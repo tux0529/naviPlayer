@@ -1,7 +1,9 @@
 #ifndef CARDWIDGET_H
 #define CARDWIDGET_H
 
+#include "album.h"
 #include <QWidget>
+
 
 namespace Ui {
 class CardWidget;
@@ -18,10 +20,7 @@ public:
     const static int width;
 
 public:
-    explicit CardWidget(const QString &albumId,
-                        const QPixmap &icoPixmap,
-                        const QString &title,
-                        const QString &artistName = QString(),
+    explicit CardWidget(const Album &album,
                         QWidget *parent = nullptr);
     ~CardWidget();
 
@@ -38,7 +37,7 @@ private:
     QLabel *m_label;
     FloatFrame *m_playFrame;
 
-    QString m_albumId;
+    Album m_album;
 };
 
 #endif // CARDWIDGET_H

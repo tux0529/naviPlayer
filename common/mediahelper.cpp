@@ -245,6 +245,8 @@ ArtistObject MediaHelper::getArtist(const QString &id)
 
     questString += QString("&id=%1").arg(id);
 
+    Config::G_Debug("MediaHelper::getArtist:", questString);
+
     QNetworkRequest quest;
     quest.setUrl(QUrl(questString));
 
@@ -281,6 +283,7 @@ ArtistObject MediaHelper::getArtist(const QString &id)
 
     artObject.setId(artistEle.attribute("id"));
     artObject.setName(artistEle.attribute("name"));
+    artObject.setAlbumCount(artistEle.attribute("albumCount").toInt() );
     artObject.setIcon( MediaHelper::Instance()->getCoverArt(artObject.id(), MediaHelper::ArtistCover, MediaHelper::Icon));
 
     QDomNodeList list = artistEle.elementsByTagName("album");

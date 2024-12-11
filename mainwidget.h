@@ -17,6 +17,7 @@ class PlayQueueWidget;
 class PlaylistsPage;
 class AlbumInfoPage;
 class PlaylistInfoPage;
+class ArtistInfoPage;
 
 class PlaybackQueue;
 
@@ -99,6 +100,7 @@ private:
 
     AlbumInfoPage *m_albumInfoPage;
     PlaylistInfoPage *m_playlistInfoPage;
+    ArtistInfoPage *m_artistInfoPage;
 
     PlaybackQueue *m_playbackQueue;
     PlayQueueWidget *m_playbackWidget;

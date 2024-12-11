@@ -49,6 +49,7 @@ SOURCES += \
     pages/albuminfopage.cpp \
     pages/albumlistmodel.cpp \
     pages/albumlistpage.cpp \
+    pages/artistinfopage.cpp \
     pages/artistspage.cpp \
     pages/favoritespage.cpp \
     pages/genrelistpage.cpp \
@@ -88,6 +89,7 @@ HEADERS += \
     pages/albuminfopage.h \
     pages/albumlistmodel.h \
     pages/albumlistpage.h \
+    pages/artistinfopage.h \
     pages/artistspage.h \
     pages/favoritespage.h \
     pages/genrelistpage.h \
@@ -103,6 +105,7 @@ FORMS += \
     mainwidget.ui \
     pages/albuminfopage.ui \
     pages/albumlistpage.ui \
+    pages/artistinfopage.ui \
     pages/artistspage.ui \
     pages/favoritespage.ui \
     pages/genrelistpage.ui \

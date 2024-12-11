@@ -44,7 +44,22 @@ void CardListWidget::setTitle(const QString &title)
 
 void CardListWidget::addCard(CardWidget *card)
 {
+    m_cardList << card;
     ui->hLayout->insertWidget(ui->hLayout->count()-1, card);
+}
+
+void CardListWidget::clear()
+{
+    for(int i = this->count(); i > 0; --i){
+        CardWidget *cw = m_cardList.takeLast();
+        ui->hLayout->removeWidget(cw);
+        cw->deleteLater();
+    }
+}
+
+int CardListWidget::count()
+{
+    return m_cardList.size();
 }
 
 void CardListWidget::onRightShift()

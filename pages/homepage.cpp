@@ -32,8 +32,7 @@ void HomePage::initData()
 
     for (int i = 0; i < recentAL.count(); i++) {
         const Album &a = recentAL.at(i);
-        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
-                                        a.name(), a.artist() , this);
+        CardWidget *cw = new CardWidget(a , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->recentWidget->addCard( cw );
@@ -45,8 +44,7 @@ void HomePage::initData()
 
     for (int i = 0; i < newestAL.count(); i++) {
         const Album &a = newestAL.at(i);
-        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
-                                        a.name(), a.artist() , this);
+        CardWidget *cw = new CardWidget(a , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->newestWidget->addCard(cw );
@@ -58,8 +56,7 @@ void HomePage::initData()
 
     for (int i = 0; i < frequentAL.count(); i++) {
         const Album &a = frequentAL.at(i);
-        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
-                                        a.name(), a.artist() , this);
+        CardWidget *cw = new CardWidget(a , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->frequentWidget->addCard(cw );
@@ -71,8 +68,7 @@ void HomePage::initData()
 
     for (int i = 0; i < randomAL.count(); i++) {
         const Album &a = recentAL.at(i);
-        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
-                                        a.name(), a.artist() , this);
+        CardWidget *cw = new CardWidget(a , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->randomWidget->addCard(cw );

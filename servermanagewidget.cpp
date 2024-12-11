@@ -167,14 +167,17 @@ void ServerManageWidget::onAddServer()
         ui->resultLabel->setText(tr("Invalid Server"));
     }
 
-
 }
 
 void ServerManageWidget::onAccept()
 {
     QString serverName = ui->serverComboBox->currentText();
 
-
-
-    accept();
+    if(Config::Instance()->setCurrentSever(serverName)){
+        Config::G_Debug("ServerManageWidget::onAccept:");
+        accept();
+    }
+    else{
+        reject();
+    }
 }

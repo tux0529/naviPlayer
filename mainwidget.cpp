@@ -13,6 +13,7 @@
 #include "playlistspage.h"
 #include "albuminfopage.h"
 #include "playlistinfopage.h"
+#include "artistinfopage.h"
 
 #include "genrelistpage.h"
 
@@ -46,6 +47,7 @@ MainWidget::MainWidget(QWidget *parent)
     , m_playlistsPage (new PlaylistsPage(this))
     , m_albumInfoPage (new AlbumInfoPage(this))
     , m_playlistInfoPage (new PlaylistInfoPage(this))
+    , m_artistInfoPage (new ArtistInfoPage(this))
     , m_playbackQueue(new PlaybackQueue(this))
     , m_playbackWidget(new PlayQueueWidget(m_playbackQueue, this))
     , m_player(new AudioPlayer(this))
@@ -250,6 +252,12 @@ void MainWidget::initForm()
     //Init PlaylistInfo Page
     m_playlistInfoPage->setObjectName(QString::fromUtf8("playlistInfoPage"));
     ui->stackedWidget->insertWidget(7, m_playlistInfoPage);
+
+    //Init ArtistInfo Page
+    m_artistInfoPage->setObjectName(QString::fromUtf8("artistInfoPage"));
+    connect(m_artistInfoPage, SIGNAL(linkClicked(const QString &)), this, SLOT(onLinkClicked(const QString &)));
+    connect(m_artistInfoPage, SIGNAL(playAlbum(const QString &)), this, SLOT(onPlayAlbum(const QString &)));
+    ui->stackedWidget->insertWidget(8, m_artistInfoPage);
 
     //设置左侧导航按钮
     QList<QPushButton *> btns = ui->leftWidget->findChildren<QPushButton *>();
@@ -499,7 +507,8 @@ void MainWidget::setLeftNavButtonIcon(QPushButton *btn)
 
 void MainWidget::visitArtist(const QString &artist)
 {
-    return;
+    m_artistInfoPage->loadArtist(artist);
+    ui->stackedWidget->setCurrentWidget(m_artistInfoPage);
 }
 
 void MainWidget::visitAlbum(const QString &albumId)

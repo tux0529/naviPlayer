@@ -21,6 +21,8 @@ public:
 
     void setTitle(const QString &title);
     void addCard(CardWidget *card);
+    void clear();
+    int count();
 
 private slots:
     void onRightShift();
@@ -33,6 +35,7 @@ private:
     Ui::CardListWidget *ui;
     QScrollBar *m_scrollBar;
     QPropertyAnimation *m_animation;
+    QList<CardWidget*> m_cardList;
 
     const static int s_cardSpace;
     const static int s_cardWidth;
