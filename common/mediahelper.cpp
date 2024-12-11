@@ -27,6 +27,19 @@ MediaHelper::MediaHelper(QObject *parent)
     m_authString = "";
 }
 
+const QIcon &MediaHelper::getAlbumIcon(const QString &albumId)
+{
+    if(!MediaHelper::Instance()->m_albumIconMap.contains(albumId)){
+        QString iconPath = MediaHelper::Instance()->getCoverArt(albumId, MediaHelper::AlbumCover, MediaHelper::Icon );
+        QIcon icon;
+        if (!iconPath.isEmpty()){
+            icon.addFile(iconPath);
+        }
+        MediaHelper::Instance()->m_albumIconMap.insert(albumId, icon);
+    }
+    return MediaHelper::Instance()->m_albumIconMap[albumId];
+}
+
 AlbumList MediaHelper::getAlbumList(AlbumType type, int size, int offset)
 {
     // https://www.redtux.cn:619/rest/getAlbumList?type=recent&size=20&u=redtux&t=9c27026da53968e4fbe19241b6cc49b0&s=coming&v=1.61.1&c=naviPlayer
@@ -77,13 +90,10 @@ AlbumList MediaHelper::getAlbumList(AlbumType type, int size, int offset)
         a.setName(element.attribute("name"));
         a.setArtist(element.attribute("artist"));
         a.setArtistId(element.attribute("artistId"));
-        a.setCoverId(element.attribute("coverArt"));
         a.setSongCount(element.attribute("songCount").toInt());
         a.setDuration(durationToString(element.attribute("duration").toInt()));
 
-        a.setArtDirpath(s_self->getCoverArt(a.id(), AlbumCover));
-
-        a.setIcon(a.iconPath());
+        s_self->getCoverArt(a.id());
 
         al << a;
 
@@ -97,22 +107,38 @@ AlbumList MediaHelper::getAlbumList(AlbumType type, int size, int offset)
 
 }
 
-QString MediaHelper::getCoverArt(const QString &id, CoverType type, int size)
+QString MediaHelper::getCoverArt(const QString &id, MediaHelper::CoverType type, MediaHelper::CoverSize size)
 {
     QString coverDirName = "";
 
+    QString coverFileName = "";
+
     switch (type) {
     case AlbumCover:
-        coverDirName += "albums";
+        coverDirName = "albums";
         break;
     case ArtistCover:
-        coverDirName += "artists";
+        coverDirName = "artists";
         break;
     case TrackCover:
-        coverDirName += "tracks";
+        coverDirName = "tracks";
         break;
     case PlayListCover:
-        coverDirName += "playlist";
+        coverDirName = "playlist";
+        break;
+    default:
+        break;
+    }
+
+    switch (size) {
+    case MediaHelper::Cover:
+        coverFileName = "cover";
+        break;
+    case MediaHelper::Poster:
+        coverFileName = "poster";
+        break;
+    case MediaHelper::Icon:
+        coverFileName = "icon";
         break;
     default:
         break;
@@ -120,22 +146,21 @@ QString MediaHelper::getCoverArt(const QString &id, CoverType type, int size)
 
     QString coverDirPath = Config::cacheDir() + coverDirName + QDir::separator() + id + QDir::separator();
 
+    QString filePath = coverDirPath + coverFileName;
+
+    if(QFile::exists(filePath)){
+        return filePath;
+    }
+
     QDir dir(coverDirPath);
     if(!dir.exists())
         dir.mkpath(coverDirPath);
 
-    QString filePath = dir.canonicalPath() + QDir::separator()+ "cover";
-
-    QFile file(filePath);
-    if (file.exists())
-        return coverDirPath;
+    QString coverFilePath = dir.canonicalPath() + QDir::separator()+ "cover";
 
     QString questString = questStringBuilder("getCoverArt");
 
     questString += QString("&id=%1").arg(id);
-
-    if (size > 0)
-        questString += QString("&size=%1").arg(size);
 
     QNetworkRequest quest;
     quest.setUrl(QUrl(questString));
@@ -145,6 +170,8 @@ QString MediaHelper::getCoverArt(const QString &id, CoverType type, int size)
     QEventLoop eventLoop;
     connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
     eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    QFile file(coverFilePath);
 
     if(!file.open(QIODevice::WriteOnly)){
         Config::G_Debug("File cannot write!");
@@ -157,9 +184,11 @@ QString MediaHelper::getCoverArt(const QString &id, CoverType type, int size)
     reply->deleteLater();
     reply = nullptr;
 
-    s_self->getRoundRectPixmap(filePath);
+    if(MediaHelper::Instance()->getRoundRectPixmap(coverFilePath)){
+        return filePath;
+    }
 
-    return coverDirPath;
+    return QString();
 }
 
 void MediaHelper::getArtists()
@@ -196,14 +225,9 @@ void MediaHelper::getArtists()
 
         Artist art(element.attribute("id"),
                    element.attribute("name"),
-                   element.attribute("coverArt"),
                    element.attribute("albumCount").toInt());
 
-
-        art.setArtDirpath(s_self->getCoverArt(art.id(), ArtistCover));
-
-        //Config::G_Debug(art.coverPath());
-        art.setIcon(art.iconPath());
+        art.setIcon(MediaHelper::Instance()->getCoverArt(art.id(), MediaHelper::ArtistCover, MediaHelper::Icon));
 
         MediaHelper::s_albumCount += element.attribute("albumCount").toInt();
 
@@ -284,13 +308,9 @@ void MediaHelper::getFavorites()
 
         Artist art(element.attribute("id"),
                    element.attribute("name"),
-                   element.attribute("coverArt"),
                    element.attribute("albumCount").toInt());
 
-
-        art.setArtDirpath(s_self->getCoverArt(art.id(), ArtistCover));
-
-        art.setIcon(art.iconPath());
+        art.setIcon(MediaHelper::Instance()->getCoverArt(art.id(), MediaHelper::ArtistCover, MediaHelper::Icon));
 
         this->s_favorArtists << art;
     }
@@ -306,12 +326,8 @@ void MediaHelper::getFavorites()
         a.setName(element.attribute("name"));
         a.setArtist(element.attribute("artist"));
         a.setArtistId(element.attribute("artistId"));
-        a.setCoverId(element.attribute("coverArt"));
         a.setSongCount(element.attribute("songCount").toInt());
         a.setDuration(durationToString(element.attribute("duration").toInt()));
-
-        a.setArtDirpath(s_self->getCoverArt(a.id(), AlbumCover));
-        a.setIcon(a.iconPath());
 
         this->s_favorAlbums << a;
     }
@@ -328,14 +344,10 @@ void MediaHelper::getFavorites()
         trk.setAlbum(element.attribute("album"));
         trk.setArtist(element.attribute("artist"));
         trk.setTrack(element.attribute("track"));
-        trk.setCoverId(element.attribute("coverArt"));
         trk.setDuration(durationToString(element.attribute("duration").toInt()));
         trk.setBitRate(element.attribute("bitRate").toInt());
         trk.setAlbumId(element.attribute("albumId"));
         trk.setArtistId(element.attribute("artistId"));
-
-        trk.setArtDirpath(s_self->getCoverArt(trk.albumId(), AlbumCover));
-        trk.setIcon(trk.iconPath());
 
         this->s_favorTracks << trk;
 
@@ -394,12 +406,8 @@ QList<PlayList> MediaHelper::getPlaylists()
         pl.setName(element.attribute("name"));
         pl.setSongCount(element.attribute("songCount").toInt());
         pl.setDuration(element.attribute("duration").toInt());
-        pl.setCoverId(element.attribute("coverArt"));
 
-        pl.setArtDirpath(s_self->getCoverArt(pl.id(), PlayListCover));
-
-        //Config::G_Debug(art.coverPath());
-        pl.setIcon(pl.iconPath());
+        pl.setIcon( MediaHelper::Instance()->getCoverArt(pl.id(), MediaHelper::PlayListCover, MediaHelper::Icon));
 
         playLists << pl;
 
@@ -483,15 +491,10 @@ samplingRate="0">
         tk.setAlbum(element.attribute("album"));
         tk.setArtist(element.attribute("artist"));
         tk.setTrack(element.attribute("track"));
-        tk.setCoverId(element.attribute("coverArt"));
         tk.setDuration(durationToString(element.attribute("duration").toInt()));
         tk.setBitRate(element.attribute("bitRate").toInt());
         tk.setAlbumId(element.attribute("albumId"));
         tk.setArtistId(element.attribute("artistId"));
-
-        tk.setArtDirpath(s_self->getCoverArt(tk.albumId(), AlbumCover));
-
-        tk.setIcon(tk.iconPath());
 
         trackLists << tk;
 
@@ -552,10 +555,6 @@ AlbumObject MediaHelper::getAlbum(const QString &albumId)
 
     ao.setId(albumEle.attribute("id"));
     ao.setName(albumEle.attribute("name"));
-    ao.setCoverId(albumEle.attribute("coverArt"));
-
-    ao.setArtDirpath(s_self->getCoverArt(ao.id(), AlbumCover));
-    ao.setIcon(ao.iconPath());
 
     ao.setArtist(albumEle.attribute("artist"));
     ao.setArtistId(albumEle.attribute("artistId"));
@@ -611,15 +610,10 @@ samplingRate="0">
         tk.setAlbum(element.attribute("album"));
         tk.setArtist(element.attribute("artist"));
         tk.setTrack(element.attribute("track"));
-        tk.setCoverId(element.attribute("coverArt"));
         tk.setDuration(durationToString(element.attribute("duration").toInt()));
         tk.setBitRate(element.attribute("bitRate").toInt());
         tk.setAlbumId(element.attribute("albumId"));
         tk.setArtistId(element.attribute("artistId"));
-
-        tk.setArtDirpath(s_self->getCoverArt(tk.albumId(), AlbumCover));
-
-        tk.setIcon(tk.iconPath());
 
         ao.addTrack(tk);
 
@@ -741,8 +735,6 @@ bool MediaHelper::getRoundRectPixmap(const QString &filePath)
         return false;
     }
 
-    QPixmap srcPixMap(filePath);
-
     QString iconPath = filePath.left(filePath.lastIndexOf("/")+1) + "icon";
 
     QString posterPath = filePath.left(filePath.lastIndexOf("/")+1) + "poster";
@@ -751,10 +743,13 @@ bool MediaHelper::getRoundRectPixmap(const QString &filePath)
         return true;
     }
 
-    QPixmap posterPixMap = srcPixMap.scaled(POSTER_WIDTH, POSTER_WIDTH,
+    QImage srcImage(filePath);
+
+    QImage posterSrcImage = srcImage.scaled(POSTER_WIDTH, POSTER_WIDTH,
                                             Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-    QPixmap posterImage(POSTER_WIDTH, POSTER_WIDTH);
+    QImage posterImage(POSTER_WIDTH, POSTER_WIDTH, QImage::Format_ARGB32);
+
     posterImage.fill(Qt::transparent);
 
     QPainter painter(&posterImage);
@@ -768,12 +763,13 @@ bool MediaHelper::getRoundRectPixmap(const QString &filePath)
     path.addRoundedRect(0,0, POSTER_WIDTH, POSTER_WIDTH,
                         POSTER_RADIUS, POSTER_RADIUS);
     painter.setClipPath(path);
-    painter.drawPixmap(0, 0, POSTER_WIDTH, POSTER_WIDTH,
-                       posterPixMap);
+    painter.drawImage(0, 0, posterSrcImage);
+    painter.end();
+
     if(posterImage.save(posterPath, "PNG", 60)){
-        QPixmap iconPixMap = posterImage.scaled(ICON_WIDTH, ICON_WIDTH,
+        QImage iconImage = posterImage.scaled(ICON_WIDTH, ICON_WIDTH,
                                                 Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        if(iconPixMap.save(iconPath, "PNG", 60)){
+        if(iconImage.save(iconPath, "PNG", 60)){
             return true;
         }
     }

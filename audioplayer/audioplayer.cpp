@@ -1,7 +1,11 @@
 #include "audioplayer.h"
 #include "playworker.h"
 #include "playbackqueue.h"
-#include "mediahelper.h"
+
+#ifndef TEST
+#include "../common/mediahelper.h"
+#endif
+
 #include <QDebug>
 #include <QApplication>
 
@@ -120,19 +124,31 @@ void AudioPlayer::play(const QString &filename )
 
     if(url.isEmpty() ){
         if(m_state == AudioPlayer::StoppedState){
-            url = m_currentAudio.cacheFilepath().isEmpty()?
-                  MediaHelper::Instance()->getSongUrlbyId(m_currentAudio.id()) : m_currentAudio.cacheFilepath();
+
+            const Track &trk = m_playbackQueue->currentTrack();
+#ifndef TEST
+            url = trk.cacheFilepath().isEmpty()?
+                      MediaHelper::Instance()->getSongUrlbyId(trk.id()) : trk.cacheFilepath();
+#else
+            url = trk.cacheFilepath();
+#endif
+
         }
     }
     qDebug() << "AudioPlayer::play:fimename" << url;
     emit mediaChanged(url);
 }
 
-void AudioPlayer::playAudio(const Track & trk)
+void AudioPlayer::playAudio(int index)
 {
-    m_currentAudio = trk;
 
+    const Track &trk = m_playbackQueue->track(index);
+#ifndef TEST
     QString url = trk.cacheFilepath().isEmpty()? MediaHelper::Instance()->getSongUrlbyId(trk.id()) : trk.cacheFilepath();
+#else
+    QString url = trk.cacheFilepath();
+#endif
+
     qDebug() << "AudioPlayer::playAudio" << url;
 
     if( m_state == PlayingState){
@@ -206,24 +222,19 @@ void AudioPlayer::setPosition(qint64 position)
     emit seekPosition(position);
 }
 
-void AudioPlayer::setAudio(Track trk)
-{
-    this->m_currentAudio = trk;
-}
-
 void AudioPlayer::setPlaybackQueue(PlaybackQueue *queue)
 {
     this->m_playbackQueue = queue;
 
     connect(m_playbackQueue, SIGNAL(trackCountChanged(int) ), this, SLOT( onTrackCountChanged(int) ) );
-    connect(m_playbackQueue, SIGNAL(currentTrackChanged(const Track&) ), this, SLOT( playAudio(const Track&) ) );
+    connect(m_playbackQueue, SIGNAL(currentIndexChanged(int) ), this, SLOT( playAudio(int) ) );
 }
 
 void AudioPlayer::onError(Error error, const QString &msg)
 {
     m_error = error;
     m_errorString = msg;
-    Config::G_Debug(error, msg);
+//    Config::G_Debug(error, msg);
     emit ERROR(error);
 }
 

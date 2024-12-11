@@ -1,8 +1,9 @@
-sudo port install zvbi XviD webp libvpx libpng libogg libmysofa twolame lame libmodplug libgsm harfbuzz dav1d libbluray pkgconfig aom libvmaf libvidstab zimg zmq libtheora speex soxr snappy rubberband openjpeg x264 x265 cmake nasm svt-av1 libfdk-aac 
+sudo port install zvbi XviD webp libvpx libpng libogg libmysofa twolame lame libmodplug libgsm harfbuzz dav1d libbluray pkgconfig aom libvmaf libvidstab zimg zmq libtheora speex soxr snappy rubberband openjpeg x264 x265 cmake nasm svt-av1 libfdk-aac libass
 
 export LD_LIBRARY_PATH=/usr/lib:/opt/local/lib:/usr/local/lib:$LD_LIBRARY_PATH
 
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/loacl/lib/pkgconfig:/opt/local/lib/pkgconfig
 
 export MACOSX_DEPLOYMENT_TARGET=10.13
 
@@ -11,3 +12,23 @@ export MACOSX_DEPLOYMENT_TARGET=10.13
 make -j 6
 
 make install
+
+
+
+
+sudo port install zvbi XviD webp libvpx libpng libogg libmysofa twolame lame libmodplug libgsm harfbuzz dav1d libbluray pkgconfig aom libvmaf libvidstab zimg zmq libtheora speex soxr snappy rubberband openjpeg x264 x265 cmake nasm svt-av1 libfdk-aac libass openh264
+
+https://github.com/uavs3/uavs3d
+https://github.com/AviSynth/AviSynthPlus
+
+
+./configure --cc=/usr/bin/clang --prefix=/Users/redtux/Applications/ffmpeg --extra-version=Heaviside --enable-gpl --enable-version3 --enable-nonfree --enable-libfdk-aac --enable-avisynth --enable-fontconfig --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-libsvtav1 --enable-libuavs3d --pkg-config-flags=--static --extra-ldflags="-L/opt/local/lib -lmp3lame -lgsm"
+
+ --enable-libvo-amrwbenc
+
+./configure --cc=/usr/bin/clang --prefix=/Users/redtux/Applications/ffmpeg --extra-version=Péter --enable-gpl --enable-version3 --enable-nonfree --enable-libfdk-aac --enable-avisynth --enable-fontconfig --enable-libaom --enable-libass --enable-libbluray --enable-libdav1d --enable-libfreetype --enable-libharfbuzz --enable-libmodplug --enable-libmp3lame --enable-libmysofa --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopus --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxavs --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-libzvbi --enable-libgsm --enable-libsvtav1 --enable-libshine --enable-libuavs3d --pkg-config-flags=--static --extra-ldflags="-L/opt/local/lib -lmp3lame -lgsm"
+
+ --extra-cflags="-I/usr/local/include" --extra-ldflags="-L/usr/local/lib -laom"
+
+ 
+ --disable-ffplay

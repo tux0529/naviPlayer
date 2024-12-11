@@ -81,6 +81,8 @@ private:
     AVPacket *m_pkt;
     AVFrame *m_frame;
 
+    uint8_t *m_audio_out_buffer;
+
     QAudioOutput *m_audioOutput;
     QIODevice *m_audioDevice;
 

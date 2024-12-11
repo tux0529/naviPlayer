@@ -1,7 +1,7 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include "mediabase.h"
+#include "../common/mediabase.h"
 
 
 class Track : public MediaBase

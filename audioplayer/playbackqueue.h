@@ -37,12 +37,12 @@ public:
     void setPlaybackMode(PlaybackMode mode);
 
     int currentIndex() const;
-    Track currentTrack() const;
+    const Track &currentTrack() const;
 
     int nextIndex(int steps = 1) const;
     int previousIndex(int steps = 1) const;
 
-    Track track(int index) const;
+    const Track &track(int index) const;
 
     int trackCount() const;
     bool isEmpty() const;

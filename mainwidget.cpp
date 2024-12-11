@@ -21,6 +21,9 @@
 
 #include <QMediaPlayer>
 
+#include <QPixmap>
+#include <QPixmapCache>
+
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QDesktopWidget>
@@ -447,7 +450,9 @@ void MainWidget::onCurrentTrackChanged(const Track &tk){
     ui->currentSongAlbumLabel->setText(QString("<a style='color: #dcdcdc;' href='search://artist=%1'>%3</a> - <a style='color: #dcdcdc;' href='search://album=%2'>%4</a>")
                                            .arg(tk.artistId(), tk.albumId(), tk.artist(), tk.album()));
 
-    ui->coverLabel->setPixmap(QPixmap(tk.posterPath()).scaled(ui->coverLabel->width(),ui->coverLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+    ui->coverLabel->setPixmap(QPixmap::fromImage(QImage(MediaHelper::Instance()->getCoverArt(tk.albumId(), MediaHelper::AlbumCover, MediaHelper::Poster))
+                                                     .scaled(ui->coverLabel->width(),ui->coverLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation)));
 
     this->setWindowTitle(QString("%1 - %2").arg(tk.artist(), tk.name()));
 

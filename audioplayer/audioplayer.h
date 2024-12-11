@@ -104,13 +104,12 @@ public:
 public slots:
     void pause();
     void play(const QString &filename = "");
-    void playAudio(const Track&);
+    void playAudio(int index);
     void setMuted(bool muted);
     void setPosition(qint64 position);
     void setVolume(int volume);
     void stop();
 
-    void setAudio(Track trk);
     void setPlaybackQueue(PlaybackQueue *queue);
 
     void onError(AudioPlayer::Error error, const QString &msg);
@@ -159,7 +158,7 @@ private:
     QAudioOutput *m_audioOutput;
     QIODevice *m_audioDevice;
 
-    Track m_currentAudio;
+    //Track m_currentAudio;
 
     AudioPlayer::Error m_error;
     QString m_errorString;

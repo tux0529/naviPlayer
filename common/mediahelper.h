@@ -25,6 +25,8 @@ public:
 
     enum CoverType { AlbumCover=0, ArtistCover, TrackCover, PlayListCover };
 
+    enum CoverSize { Cover=0, Poster, Icon };
+
 public:
 
     static MediaHelper *Instance()
@@ -42,8 +44,10 @@ public:
         return s_self;
     }
 
+    static const QIcon &getAlbumIcon(const QString &albumId);
+
     AlbumList getAlbumList(AlbumType type, int size = 20, int offset = 0);
-    QString getCoverArt(const QString &id, CoverType type=AlbumCover, int size = 0);
+    QString getCoverArt(const QString &id, MediaHelper::CoverType type=AlbumCover, MediaHelper::CoverSize size = Cover);
     void getArtists();
     void getGenres();
     void getFavorites();
@@ -75,6 +79,8 @@ private:
     QNetworkAccessManager *m_manager;
     QString m_host;
     QString m_authString;
+
+    QMap<QString, QIcon> m_albumIconMap;
 
 };
 

@@ -35,7 +35,7 @@ QVariant AlbumListModel::data(const QModelIndex &index, int role) const
     if (index.row() >= m_albumList.size() || index.row() < 0)
         return QVariant();
 
-    const Album album = m_albumList.at(index.row());
+    const Album &album = m_albumList.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -56,7 +56,7 @@ QVariant AlbumListModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return album.icon();
+            return MediaHelper::getAlbumIcon(album.id());
         break;
     default:
         break;

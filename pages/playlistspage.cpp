@@ -32,7 +32,7 @@ QVariant PlaylistsModel::data(const QModelIndex &index, int role) const
     if (index.row() >= m_playLists.size() || index.row() < 0)
         return QVariant();
 
-    const PlayList pl = m_playLists.at(index.row());
+    const PlayList &pl = m_playLists.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:

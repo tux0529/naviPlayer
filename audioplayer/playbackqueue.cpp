@@ -1,5 +1,8 @@
 #include "playbackqueue.h"
 
+#ifndef TEST
+#include "../common/mediahelper.h"
+#endif
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5,10,0))
 #include <QRandomGenerator>
@@ -39,7 +42,7 @@ QVariant PlaybackQueue::data(const QModelIndex &index, int role) const
     if (index.row() >= m_trackList.size() || index.row() < 0)
         return QVariant();
 
-    const auto song = m_trackList.at(index.row());
+    const auto &song = m_trackList.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         if (index.column() == 0){
@@ -60,10 +63,13 @@ QVariant PlaybackQueue::data(const QModelIndex &index, int role) const
     case Qt::TextAlignmentRole:
         return Qt::AlignVCenter ;
         break;
+
+#ifndef TEST
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return QIcon(song.iconPath());
+            return MediaHelper::getAlbumIcon(song.albumId());
         break;
+#endif
     default:
         break;
     }
@@ -139,7 +145,7 @@ int PlaybackQueue::currentIndex() const
     return this->m_currentIndex;
 }
 
-Track PlaybackQueue::currentTrack() const
+const Track &PlaybackQueue::currentTrack() const
 {
     return this->m_trackList.at(m_currentIndex);
 }
@@ -191,7 +197,7 @@ int PlaybackQueue::previousIndex(int steps) const
     return prev;
 }
 
-Track PlaybackQueue::track(int index) const
+const Track &PlaybackQueue::track(int index) const
 {
     return this->m_trackList.at(index);
 }

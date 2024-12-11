@@ -1,6 +1,6 @@
 #include "playworker.h"
 #include "qdebug.h"
-#include "config.h"
+//#include "config.h"
 
 #include <QTime>
 #include <QCoreApplication>
@@ -48,11 +48,11 @@ void PlayWorker::play(const QString &filename)
     if (filename.isEmpty() ){
         if(m_seekPosition > -1){
             seek();
-            Config::G_Debug("PlayWorker::play:seek", m_seekPosition);
+ //           Config::G_Debug("PlayWorker::play:seek", m_seekPosition);
         }
         else{
             m_flag = PlayWorker::controlPlay;
-            Config::G_Debug("PlayWorker::play:remuse");
+ //           Config::G_Debug("PlayWorker::play:remuse");
         }
         return;
     }
@@ -75,7 +75,7 @@ void PlayWorker::play(const QString &filename)
 
         m_flag = PlayWorker::controlStop;
 
-        Config::G_Debug("PlayWorker::play: Playing now ,msleep for stop:", 200);
+//        Config::G_Debug("PlayWorker::play: Playing now ,msleep for stop:", 200);
         QThread::msleep( 200 );
 
         m_flag = PlayWorker::controlPlay;
@@ -83,7 +83,7 @@ void PlayWorker::play(const QString &filename)
     }
     else if (m_audioOutput->state() == QAudio::IdleState ) {
 
-        Config::G_Debug("PlayWorker::play: Playing now");
+//        Config::G_Debug("PlayWorker::play: Playing now");
         m_flag = PlayWorker::controlPlay;
         decodeAudio();
     }
@@ -115,7 +115,7 @@ void PlayWorker::seek(qint64 pos)
         decodeAudio();
 
 
-    Config::G_Debug("PlayWorker::seek: seekPosition:", m_seekPosition);
+//    Config::G_Debug("PlayWorker::seek: seekPosition:", m_seekPosition);
 }
 
 void PlayWorker::decodeAudio()
@@ -272,7 +272,7 @@ void PlayWorker::decodeAudio()
     }
 
     /* Allocate a memory block */
-    uint8_t *audio_out_buffer = (uint8_t*)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
+    m_audio_out_buffer = (uint8_t*)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
 
     duration = av_q2d(aStream->time_base)*1000*aStream->duration;
 
@@ -303,7 +303,6 @@ void PlayWorker::decodeAudio()
                 m_flag = PlayWorker::controlPlay;
                 m_currentPosition = m_seekPosition;
                 m_seekPosition = -1;
-
             }
         }
 
@@ -319,7 +318,6 @@ void PlayWorker::decodeAudio()
             emit mediaStatusChanged(AudioPlayer::EndOfMedia);
             emit stateChanged(AudioPlayer::StoppedState);
             freeAVMem();
-
             return;
         }
         else if( error < 0 ) {
@@ -385,7 +383,7 @@ void PlayWorker::decodeAudio()
                  * Returns: number of samples output per channel, negative value on error
                  * */
                 int len = swr_convert(m_swr_ctx,
-                                      &audio_out_buffer,
+                                      &m_audio_out_buffer,
                                       MAX_AUDIO_FRAME_SIZE*2,
                                       (const uint8_t**)m_frame->data,
                                       m_frame->nb_samples);
@@ -450,7 +448,7 @@ void PlayWorker::decodeAudio()
                             }
                             else if(m_pauseStateWaitTimes >= PAUSE_STATE_MAX_WAIT_TIMES){
                                 m_pauseStateWaitTimes = 0;
-                                //m_audioDevice->write((char*)audio_out_buffer, out_size);
+                                //m_audioDevice->write((char*)m_audio_out_buffer, out_size);
                                 m_seekPosition = av_q2d(aStream->time_base)*1000*m_frame->pts;
                                 freeAVMem();
                                 return;
@@ -467,7 +465,7 @@ void PlayWorker::decodeAudio()
 
                 //qDebug("audioOutput Free size is: %d.",m_audioOutput->bytesFree());
                 //qDebug()<<"Time: " << QTime::currentTime().toString("hh:mm:ss.zzz");
-                m_audioDevice->write((char*)audio_out_buffer, out_size);
+                m_audioDevice->write((char*)m_audio_out_buffer, out_size);
 
                 m_currentPosition = av_q2d(aStream->time_base)*1000*m_frame->pts;
 
@@ -490,16 +488,24 @@ void PlayWorker::freeAVMem()
 {
 
     av_packet_unref(m_pkt);
+    av_packet_free(&m_pkt);
+    av_free(m_pkt);
 
     swr_free(&m_swr_ctx);
 
+
+    av_frame_unref(m_frame);
     av_frame_free(&m_frame);
-    av_packet_free(&m_pkt);
-    av_freep(&m_pkt);
+    av_free(m_frame);
 
     avcodec_close(m_codecCtx);
     avcodec_free_context(&m_codecCtx);
 
+    avformat_close_input(&m_fmtCtx);
     avformat_free_context(m_fmtCtx);
+
+
+    free(m_audio_out_buffer);
+
 }
 

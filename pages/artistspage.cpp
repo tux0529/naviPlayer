@@ -34,7 +34,7 @@ QVariant ArtistsModel::data(const QModelIndex &index, int role) const
     if (index.row() >= MediaHelper::s_artistList.size() || index.row() < 0)
         return QVariant();
 
-    const Artist art = MediaHelper::s_artistList.at(index.row());
+    const Artist &art = MediaHelper::s_artistList.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:

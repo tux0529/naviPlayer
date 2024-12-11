@@ -68,7 +68,7 @@ QVariant AlbumInfoModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return trk.icon();
+            return MediaHelper::getAlbumIcon(trk.albumId());
         break;
     default:
         break;
@@ -127,7 +127,7 @@ AlbumInfoPage::~AlbumInfoPage()
 void AlbumInfoPage::loadAlbum(const QString &albumId)
 {
     m_albumInfoModel->updateAlbum(albumId);
-    ui->posterLabel->setPixmap(QPixmap(m_albumObject.posterPath()));
+    ui->posterLabel->setPixmap(QPixmap(MediaHelper::Instance()->getCoverArt(m_albumObject.id(), MediaHelper::AlbumCover, MediaHelper::Poster)));
     ui->pageTitleLabel->setText(m_albumObject.name());
     ui->pageInfoLabel->setText(tr("Album · %1 songs, %2 ")
                                    .arg(m_albumObject.songCount() )

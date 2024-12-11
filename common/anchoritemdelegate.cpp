@@ -10,8 +10,6 @@
 #include <QFlags>
 
 
-const int AnchorItemDelegate::iconMargin = 4;
-
 AnchorItemDelegate::AnchorItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
@@ -64,8 +62,12 @@ void AnchorItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         }
         else{
             //Config::G_Debug("AnchorItemDelegate:Height:", options.rect.height());
-            QPixmap img = icon.pixmap(options.rect.height() - AnchorItemDelegate::iconMargin*2, options.rect.height()- AnchorItemDelegate::iconMargin*2);
-            painter->drawPixmap(AnchorItemDelegate::iconMargin, AnchorItemDelegate::iconMargin, img);
+
+            //QPixmap img = icon.pixmap(options.rect.height() - ICON_MARGIN * 2, options.rect.height()- ICON_MARGIN*2);
+            //painter->drawPixmap(ICON_MARGIN, ICON_MARGIN, img);
+            icon.paint(painter, ICON_MARGIN, ICON_MARGIN,
+                       options.rect.height() - ICON_MARGIN * 2, options.rect.height()- ICON_MARGIN*2);
+
             painter->translate(options.rect.left() + 15, (options.rect.height() - doc.size().height())/2);
             QRect clip(0, 0, options.rect.width()-options.rect.height() -10, options.rect.height());
             doc.drawContents(painter, clip);

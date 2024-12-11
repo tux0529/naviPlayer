@@ -1,11 +1,15 @@
 #include "artist.h"
 
-Artist::Artist(const QString &id, const QString &name, const QString &cover, int albumCount)
+Artist::Artist(const QString &id, const QString &name, int albumCount)
 {
     this->setId(id);
     this->setName(name);
-    this->setCoverId(cover);
 
     this->m_albumCount = albumCount;
+}
+
+void Artist::setIcon(const QString &coverPath)
+{
+    m_icon.addFile(coverPath);
 }
 

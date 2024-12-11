@@ -59,7 +59,7 @@ QVariant FavorTracksModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return trk.icon();
+            return MediaHelper::getAlbumIcon(trk.albumId());
         break;
     default:
         break;
@@ -147,7 +147,7 @@ QVariant FavorAlbumsModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return album.icon();
+            return MediaHelper::getAlbumIcon(album.id());
         break;
     default:
         break;

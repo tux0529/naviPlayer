@@ -1,4 +1,5 @@
 #include "tracktablemodel.h"
+#include "mediahelper.h"
 
 TrackTableModel::TrackTableModel(QObject *parent)
     : QAbstractTableModel{parent}
@@ -52,7 +53,7 @@ QVariant TrackTableModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::DecorationRole:
         if (index.column() == 1)
-            return trk.icon();
+            return MediaHelper::getAlbumIcon(trk.albumId());
         break;
     default:
         break;

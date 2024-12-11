@@ -14,3 +14,8 @@ void PlayList::setDuration(int duration)
 {
     this->m_duration = duration;
 }
+
+void PlayList::setIcon(const QString &coverPath)
+{
+    m_icon.addFile(coverPath);
+}

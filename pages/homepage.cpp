@@ -31,7 +31,9 @@ void HomePage::initData()
     Config::G_Debug( "AlbumList size:", recentAL.size());
 
     for (int i = 0; i < recentAL.count(); i++) {
-        CardWidget *cw = new CardWidget(recentAL.at(i).id(), QPixmap(recentAL.at(i).posterPath()), recentAL.at(i).name(), recentAL.at(i).artist() , this);
+        const Album &a = recentAL.at(i);
+        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
+                                        a.name(), a.artist() , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->recentWidget->addCard( cw );
@@ -42,7 +44,9 @@ void HomePage::initData()
     Config::G_Debug( "AlbumList size:", newestAL.size());
 
     for (int i = 0; i < newestAL.count(); i++) {
-        CardWidget *cw = new CardWidget(newestAL.at(i).id(), QPixmap(newestAL.at(i).posterPath()),  newestAL.at(i).name(), newestAL.at(i).artist() , this);
+        const Album &a = newestAL.at(i);
+        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
+                                        a.name(), a.artist() , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->newestWidget->addCard(cw );
@@ -53,7 +57,9 @@ void HomePage::initData()
     Config::G_Debug( "AlbumList size:", frequentAL.size());
 
     for (int i = 0; i < frequentAL.count(); i++) {
-        CardWidget *cw = new CardWidget(frequentAL.at(i).id(), QPixmap(frequentAL.at(i).posterPath()),  frequentAL.at(i).name(), frequentAL.at(i).artist() , this);
+        const Album &a = frequentAL.at(i);
+        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
+                                        a.name(), a.artist() , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->frequentWidget->addCard(cw );
@@ -64,7 +70,9 @@ void HomePage::initData()
     Config::G_Debug( "AlbumList size:", randomAL.size());
 
     for (int i = 0; i < randomAL.count(); i++) {
-        CardWidget *cw = new CardWidget(randomAL.at(i).id(), QPixmap(randomAL.at(i).posterPath()),  randomAL.at(i).name(), randomAL.at(i).artist() , this);
+        const Album &a = recentAL.at(i);
+        CardWidget *cw = new CardWidget(a.id(), QPixmap::fromImage(QImage( MediaHelper::Instance()->getCoverArt(a.id(), MediaHelper::AlbumCover, MediaHelper::Poster ))),
+                                        a.name(), a.artist() , this);
         connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->randomWidget->addCard(cw );

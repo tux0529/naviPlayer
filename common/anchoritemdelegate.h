@@ -3,6 +3,8 @@
 
 #include <QStyledItemDelegate>
 
+#define ICON_MARGIN  4
+
 class AnchorItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -20,7 +22,6 @@ protected:
     //void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const;
 private:
     int m_hoverRow;
-    const static int iconMargin;
 };
 
 #endif // ANCHORITEMDELEGATE_H

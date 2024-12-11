@@ -6,14 +6,17 @@
 class Artist : public MediaBase
 {
 public:
-    Artist(const QString &id, const QString &name, const QString &cover, int albumCount);
+    Artist(const QString &id, const QString &name, int albumCount);
 
     int albumCount() const{ return this->m_albumCount; }
 
+    void setIcon(const QString &coverPath);
+    const QIcon &icon() const { return this->m_icon; };
 
 private:
 
     int m_albumCount;
+    QIcon m_icon;
 
 };
 

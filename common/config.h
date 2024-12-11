@@ -13,7 +13,7 @@
 
 
 #define POSTER_WIDTH    180
-#define POSTER_RADIUS    18
+#define POSTER_RADIUS    19
 #define ICON_WIDTH       48
 
 

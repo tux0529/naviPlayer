@@ -1,7 +1,6 @@
 #ifndef ALBUM_H
 #define ALBUM_H
 
-#include <QFileInfo>
 #include "mediabase.h"
 
 class Album : public MediaBase
