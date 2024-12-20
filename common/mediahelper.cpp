@@ -750,6 +750,33 @@ QString MediaHelper::getSongUrlbyId(const QString &id)
     return questString;
 }
 
+void MediaHelper::scrobble(const QString &id, bool submission)
+{
+    QString questString = questStringBuilder("scrobble");
+    questString += QString("&id=%1").arg(id);
+    if (!submission){
+        questString += QString("&submission=%1").arg("false");
+    }
+    else{
+        questString += QString("&time=%1&submission=%2").arg(QDateTime::currentMSecsSinceEpoch()).arg("true");
+    }
+
+    Config::G_Debug("MediaHelper::scrobble:questString", questString);
+
+    QNetworkRequest quest;
+    quest.setUrl(QUrl(questString));
+
+    QNetworkReply *reply = m_manager->get(quest);
+
+    QEventLoop eventLoop;
+    connect(reply, &QNetworkReply::finished, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    //QString replyString = reply->readAll();
+    reply->deleteLater();
+    reply = nullptr;
+}
+
 bool MediaHelper::ping(Config::Server &srv)
 {
     QString questString = srv.url + "/rest/ping";

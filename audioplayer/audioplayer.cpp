@@ -174,7 +174,11 @@ void AudioPlayer::onMediaStatusChanged(AudioPlayer::MediaStatus status)
 {
     m_mediaStatus = status;
     if (status == AudioPlayer::EndOfMedia){
+        MediaHelper::Instance()->scrobble(m_playbackQueue->currentTrackId(), true);
         m_playbackQueue->next();
+    }
+    else if(status == AudioPlayer::LoadedMedia){
+        MediaHelper::Instance()->scrobble(m_playbackQueue->currentTrackId(), false);
     }
     emit mediaStatusChanged( status);
 }

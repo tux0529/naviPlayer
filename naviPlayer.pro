@@ -163,8 +163,8 @@ macx {
         INCLUDEPATH += $$PWD/lib/macOS/ffmpeg61_arm64/include
 
         LIBS += \
-            -L$$PWD/lib/macOS/ffmpeg61_arm64/lib -lavformat -lavcodec -lswresample \
-            # -L$$PWD/lib/macOS/ffmpeg61_arm64/lib -lavutil \
+            -L$$PWD/lib/macOS/ffmpeg61_arm64/lib -lavformat -lavcodec -lswresample -lavutil
+            # -L$$PWD/lib/macOS/ffmpeg61_arm64/lib \
             # -L$$PWD/lib/macOS/ffmpeg61_arm64/lib -lswscale \
     }
 
@@ -173,7 +173,7 @@ macx {
         INCLUDEPATH += $$PWD/lib/macOS/ffmpeg/include
 
         LIBS += \
-            -L$$PWD/lib/macOS/ffmpeg/lib -lavformat -lavcodec -lswresample \
+            -L$$PWD/lib/macOS/ffmpeg/lib -lavformat -lavcodec -lswresample -lavutil
     }
 
     ICON = resources/AppIcon.icns

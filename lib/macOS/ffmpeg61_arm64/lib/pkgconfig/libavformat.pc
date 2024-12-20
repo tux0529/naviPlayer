@@ -1,7 +1,7 @@
-prefix=/Users/redtux/Apps/ffmpeg61_a
+prefix=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64
 exec_prefix=${prefix}
-libdir=/Users/redtux/Apps/ffmpeg61_a/lib
-includedir=/Users/redtux/Apps/ffmpeg61_a/include
+libdir=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64/lib
+includedir=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64/include
 
 Name: libavformat
 Description: FFmpeg container format library

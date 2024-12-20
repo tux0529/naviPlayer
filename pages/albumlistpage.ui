@@ -55,26 +55,6 @@ font: 36pt &quot;Heiti SC&quot;;</string>
          <height>28</height>
         </size>
        </property>
-       <item>
-        <property name="text">
-         <string>Recent Added</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Most Played</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Recent Played</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Random</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>

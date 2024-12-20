@@ -1,5 +1,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
+#include "servermanagewidget.h"
 #include <QApplication>
 
 class MainWidget;
@@ -29,12 +30,15 @@ public:
 public slots:
 
     void showMainWindow();
+    void showSystemPreferences();
+    void showSeverManager();
 
 private slots:
     MainWidget *mianWindow();
 
 private:
     static MainWidget *s_mainWindow;
+    static ServerManageWidget *s_serverManager;
 
     QByteArray m_lastSession;
 

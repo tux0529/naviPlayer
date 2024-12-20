@@ -2,6 +2,7 @@
 #include "ui_mainwidget.h"
 #include "iconhelper.h"
 #include "mediahelper.h"
+#include "application.h"
 
 #include "playbackqueue.h"
 #include "homepage.h"
@@ -109,6 +110,7 @@ bool MainWidget::eventFilter(QObject *obj, QEvent *evt)
                 m_playbackWidget->hide();
                 ui->playbackQueueButton->setChecked(false);
             }
+
         }
         break;
     }
@@ -207,6 +209,12 @@ void MainWidget::initForm()
     IconHelper::Instance()->setIcon(ui->playbackQueueButton, QChar(0xF0c9), 20);
 
 
+    ui->menuButton->setPopupMode(QToolButton::InstantPopup);
+    QMenu *menu = Application::instance()->systemMenu();
+    menu->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+    menu->setAttribute(Qt::WA_TranslucentBackground, true);
+    ui->menuButton->setMenu(menu);
+
     //Init PlayBack Queue Page
     m_playbackWidget->setObjectName(QString::fromUtf8("playbackWidget"));
     m_playbackWidget->hide();
@@ -216,13 +224,14 @@ void MainWidget::initForm()
 
     //Init Home Page
     m_homePage->setObjectName(QString::fromUtf8("homePage"));
-    connect(m_homePage, SIGNAL(linkClicked(const QString &)), this, SLOT(onLinkClicked(const QString &)));
+    connect(m_homePage, SIGNAL(linkActivated(const QString &)), this, SLOT(onLinkClicked(const QString &)));
     connect(m_homePage, SIGNAL(playAlbum(const QString &)), this, SLOT(onPlayAlbum(const QString &)));
     ui->stackedWidget->insertWidget(0, m_homePage);
 
     //Init Album List Page
     m_albumListPage->setObjectName(QString::fromUtf8("albumListPage"));
     connect(m_albumListPage, SIGNAL(playIconClicked(const QString &)), this, SLOT(onPlayAlbum(const QString &)));
+    connect(m_albumListPage, SIGNAL(linkActivated(const QString &)), this, SLOT(onLinkClicked(const QString &)));
     ui->stackedWidget->insertWidget(1, m_albumListPage);
 
     //Init artist List Page

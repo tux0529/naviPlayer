@@ -21,6 +21,8 @@ int main(int argc, char *argv[])
 
     if (!Config::Instance()->serverSeted()){
 
+        Application::instance()->showSeverManager();
+        /*
         ServerManageWidget smw;
 
         if (smw.exec() == QDialog::Accepted ){
@@ -29,13 +31,13 @@ int main(int argc, char *argv[])
             w.show();
             return a.exec();
         }
+*/
     }
     else{
-        MainWidget w;
-        w.show();
-        return a.exec();
+
+        Application::instance()->showMainWindow();
     }
 
-    return 0;
+    return a.exec();
 
 }

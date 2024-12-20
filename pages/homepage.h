@@ -18,7 +18,7 @@ public:
     void initData();
 
 signals:
-    void linkClicked(const QString &link);
+    void linkActivated(const QString &link);
     void playAlbum(const QString &albumId);
 private:
     Ui::HomePage *ui;

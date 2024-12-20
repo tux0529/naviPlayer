@@ -26,6 +26,7 @@
 
 
 MainWidget *Application::s_mainWindow = nullptr;
+ServerManageWidget *Application::s_serverManager = nullptr;
 
 Application::Application(int &argc, char **argv)
     : QApplication(argc, argv),
@@ -48,6 +49,7 @@ Application::Application(int &argc, char **argv)
 Application::~Application()
 {
     delete s_mainWindow;
+    delete s_serverManager;
     delete m_systemMenu;
 }
 
@@ -131,8 +133,8 @@ int Application::screenWidth()
 void Application::initTrayMenu(){
 
     QSystemTrayIcon *m_trayIcon = new QSystemTrayIcon(this);
-    m_trayIcon->setContextMenu(this->systemMenu());
-    m_trayIcon->setIcon(QIcon(":/image/mediaConverter_white.png"));
+    m_trayIcon->setContextMenu(Application::instance()->systemMenu());
+    m_trayIcon->setIcon(QIcon(":/images/Musicpl.png"));
     m_trayIcon->setVisible(true);
 }
 
@@ -145,13 +147,13 @@ QMenu *Application::systemMenu()
         connect(showAct, SIGNAL(triggered()), Application::instance(), SLOT(showMainWindow()));
         m_systemMenu->addAction( showAct);
 
-        QAction *jobManagerAct = new QAction( tr("&Job Queue"), this);
-        connect(jobManagerAct, SIGNAL(triggered()), Application::instance(), SLOT(showJobManager()));
-        m_systemMenu->addAction( jobManagerAct);
-
         QAction *systemPreferencesAct = new QAction( tr("&Preferences"), this);
         connect(systemPreferencesAct, SIGNAL(triggered()), Application::instance(), SLOT(showSystemPreferences()));
         m_systemMenu->addAction( systemPreferencesAct);
+
+        QAction *jobManagerAct = new QAction( tr("&Manage Servers"), this);
+        connect(jobManagerAct, SIGNAL(triggered()), Application::instance(), SLOT(showSeverManager()));
+        m_systemMenu->addAction( jobManagerAct);
 
         QAction *aboutAct = new QAction( tr("&About"), this);
         connect(aboutAct, SIGNAL(triggered()), Application::instance(), SLOT(showSystemPreferences()));
@@ -169,6 +171,26 @@ QMenu *Application::systemMenu()
 void Application::showMainWindow(){
     Application::mianWindow()->show();
     Application::mianWindow()->raise();
+}
+
+void Application::showSystemPreferences()
+{
+
+}
+
+void Application::showSeverManager()
+{
+    static QMutex mutex2;
+    if (!s_serverManager) {
+        QMutexLocker locker(&mutex2);
+        if (!s_serverManager) {
+            s_serverManager = new ServerManageWidget();
+
+            connect(s_serverManager, SIGNAL(accept()), Application::instance(), SLOT(showMainWindow()));
+        }
+    }
+    s_serverManager->show();
+    s_serverManager->raise();
 }
 
 MainWidget *Application::mianWindow()

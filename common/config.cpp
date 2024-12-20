@@ -95,7 +95,6 @@ void Config::loadConfigValue()
     if (m_serverSeted)
         m_serverSeted = MediaHelper::Instance()->ping(currentServer);
 
-
     if (m_serverSeted){
         m_cacheDir = m_appDataDir + "cache" + QDir::separator() +currentSeverName + QDir::separator();
         QDir dir(m_cacheDir);
@@ -221,14 +220,16 @@ bool Config::setValue(const QString &key, const QString &value)
 {
     QSqlQuery query(m_configdb);
 
+    Config::G_Debug("Config::setValue:key:",key );
+    Config::G_Debug("Config::setValue:value:",value );
+
     query.exec(QString("SELECT value FROM config WHERE name='%1';").arg(key));
 
-    if (query.size() > 0){
+
+    if (query.next()){
         query.clear();
         return query.exec(QString("UPDATE config SET value='%1' WHERE name='%2';").arg(value, key));
     }
-
-    query.clear();
 
     query.prepare("INSERT INTO config (name, value) "
                   "VALUES ( :name, :value)");

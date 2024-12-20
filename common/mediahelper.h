@@ -64,6 +64,20 @@ public:
 
     QString getSongUrlbyId(const QString &id);
 
+    /* https://www.redtux.cn:619/rest/scrobble?
+     * u=redtux&
+     * t=23d9356afe2a8e45f0220c06f50e086e&
+     * s=f1f8be&
+     * f=json&
+     * v=1.8.0&
+     * c=NavidromeUI&
+     * id=e26a97b5d31c3412a28a89e7e6b665eb&
+     * submission=false
+     * time=1734662183068
+     * submission=true
+     * */
+    void scrobble(const QString &id, bool submission = true);
+
     bool ping(Config::Server &srv);
 
     static GenreList s_genreList;

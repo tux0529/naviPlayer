@@ -6,7 +6,7 @@
 
 #include "playbackqueue.h"
 
-//#include <QListView>
+#include "config.h"
 
 
 #include <QDebug>
@@ -63,17 +63,83 @@ void PlayQueueWidget::onTrackCountChanged(int count)
     ui->infoLabel->setText(tr("%1 songs").arg(count));
 }
 
-// void PlayQueueWidget::onCurrentIndexChanged(int index)
-// {
-//     update();
-//     emit currentSongChanged(s);
-// }
+void PlayQueueWidget::onCurrentIndexChanged(int index)
+{
+    update();
+    //emit currentSongChanged(s);
+    QModelIndex mIndex = m_playbackQueue->index(index,0);
+    ui->tableView->scrollTo(mIndex);
+}
 
 void PlayQueueWidget::onRowDoubleClicked(const QModelIndex &index)
 {
     if (index.isValid())
         m_playbackQueue->setCurrentIndex(index.row());
 
+}
+
+void PlayQueueWidget::onClearButtonClicked()
+{
+    m_playbackQueue->clear();
+}
+
+void PlayQueueWidget::onPlaybackModeButtonClicked()
+{
+    switch (m_playbackQueue->playbackMode()) {
+    case PlaybackQueue::CurrentItemInLoop:
+        //Sequential
+        IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF03a), 16);
+        m_playbackQueue->setPlaybackMode(PlaybackQueue::Sequential);
+        break;
+    case PlaybackQueue::Sequential:
+        //Repeat All
+        IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF021), 16);
+        m_playbackQueue->setPlaybackMode(PlaybackQueue::Loop);
+        break;
+    case PlaybackQueue::Loop:
+        //Random
+        IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF074), 16);
+        m_playbackQueue->setPlaybackMode(PlaybackQueue::Random);
+        break;
+    case PlaybackQueue::Random:
+        //Repeat One
+        IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF01e), 16);
+        m_playbackQueue->setPlaybackMode(PlaybackQueue::CurrentItemInLoop);
+        break;
+    default:
+        break;
+    }
+}
+
+void PlayQueueWidget::onMoveUpButtonClicked()
+{
+    QModelIndexList mIndexList = ui->tableView->selectionModel()->selectedRows();
+    for(int i = 0; i < mIndexList.size(); ++i){
+        int row = mIndexList.at(i).row();
+        this->m_playbackQueue->moveTrack(row, i);
+    }
+}
+
+void PlayQueueWidget::onMoveDownButtonClicked()
+{
+    int size = this->m_playbackQueue->rowCount(QModelIndex());
+    QModelIndexList mIndexList = ui->tableView->selectionModel()->selectedRows();
+
+    for(int i = 0; i < mIndexList.size(); ++i){
+        int row = mIndexList.at(i).row();
+        this->m_playbackQueue->moveTrack(row - i, size-1);
+    }
+
+}
+
+void PlayQueueWidget::onRemoveButtonClicked()
+{
+    QModelIndexList mIndexList = ui->tableView->selectionModel()->selectedRows();
+    for(int i = mIndexList.size(); i > 0; --i){
+        int row = mIndexList.at(i-1).row();
+        Config::G_Debug("Line: ", row, " selected");
+        this->m_playbackQueue->removeTrack(row);
+    }
 }
 
 void PlayQueueWidget::setPlaylist(PlaybackQueue *playQueue)
@@ -99,22 +165,33 @@ void PlayQueueWidget::initForm()
         w->setAttribute(Qt::WA_TranslucentBackground);
     }
 
-    IconHelper::Instance()->setIcon(ui->clearButton, QChar(0xF048), 16);
-    IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF144), 16);
-    IconHelper::Instance()->setIcon(ui->moveUpButton, QChar(0xF051), 16);
-    IconHelper::Instance()->setIcon(ui->moveDownButton, QChar(0xF08a), 16);
-    IconHelper::Instance()->setIcon(ui->removeButton, QChar(0xF028), 16);
+    IconHelper::Instance()->setIcon(ui->clearButton, QChar(0xF1f8), 16);
+
+    //Sequential
+    m_playbackQueue->setPlaybackMode(PlaybackQueue::Sequential);
+    IconHelper::Instance()->setIcon(ui->playbackModeButton, QChar(0xF03a), 16);
+
+    IconHelper::Instance()->setIcon(ui->moveUpButton, QChar(0xF062), 16);
+    IconHelper::Instance()->setIcon(ui->moveDownButton, QChar(0xF063), 16);
+    IconHelper::Instance()->setIcon(ui->removeButton, QChar(0xF00d), 16);
 
     ui->tableView->setModel(m_playbackQueue);
 
     ui->tableView->setItemDelegate(m_anchorItemDelegate);
+
+    connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(onClearButtonClicked()));
+    connect(ui->playbackModeButton, SIGNAL(clicked()), this, SLOT(onPlaybackModeButtonClicked()));
+    connect(ui->moveUpButton, SIGNAL(clicked()), this, SLOT(onMoveUpButtonClicked()));
+    connect(ui->moveDownButton, SIGNAL(clicked()), this, SLOT(onMoveDownButtonClicked()));
+    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(onRemoveButtonClicked()));
+
 
     connect(m_playbackQueue, SIGNAL(trackCountChanged(int)), this, SLOT(onTrackCountChanged(int)));
 
     connect(ui->tableView, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkActivated(const QString &)));
     connect(ui->tableView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onRowDoubleClicked(const QModelIndex &)));
 
-    //connect(m_playbackQueue, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
+    connect(m_playbackQueue, SIGNAL(currentIndexChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 void PlayQueueWidget::resizeTableView()

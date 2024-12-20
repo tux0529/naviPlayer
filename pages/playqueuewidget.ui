@@ -44,6 +44,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="clearButton">
+       <property name="toolTip">
+        <string>Clear queue</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -51,6 +54,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="playbackModeButton">
+       <property name="toolTip">
+        <string>Playback mode</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -58,6 +64,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="moveUpButton">
+       <property name="toolTip">
+        <string>Move selected to top</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -65,6 +74,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="moveDownButton">
+       <property name="toolTip">
+        <string>Move selected to bottom</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -72,6 +84,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="removeButton">
+       <property name="toolTip">
+        <string>Remove selected</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>

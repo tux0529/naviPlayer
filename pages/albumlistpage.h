@@ -1,6 +1,7 @@
 #ifndef ALBUMLISTPAGE_H
 #define ALBUMLISTPAGE_H
 
+#include "qmenu.h"
 #include <QWidget>
 
 namespace Ui {
@@ -24,6 +25,11 @@ private slots:
     void onRowDoubleClicked(const QModelIndex &index);
     void updateData(const QString &page = QString("1"));
     void on_comboBox_currentIndexChanged(int index);
+    void onContextMenuRequested(const QPoint &pos);
+
+    void onPlayAlbum();
+    void onInsertToQueue();
+    void onAppendToQueue();
 
 signals:
     void linkActivated(const QString &);
@@ -31,11 +37,23 @@ signals:
 
 private:
     void initForm();
+
+    void resizeTableView();
+
+    QString pageString(int page);
+
     Ui::AlbumListPage *ui;
 
     AnchorTableView *m_listView;
     AlbumListModel *m_model;
-    void resizeTableView();
+
+    QMenu *m_contextMenu;
+    QAction *m_playAction;
+    QAction *m_insertToQueueAction;
+    QAction *m_appendToQueueAction;
+    QAction *m_addToPlaylistAction;
+    QAction *m_addToFavoriteAction;
+    QAction *m_removeFromFavoriteAction;
 };
 
 #endif // ALBUMLISTPAGE_H

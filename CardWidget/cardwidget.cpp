@@ -35,8 +35,8 @@ CardWidget::CardWidget(const Album &album,
     m_playFrame->setFillBackground(false);
     m_playFrame->setHideInterval(10);
 
-    connect(ui->titleLabel, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkClicked(const QString &)));
-    connect(ui->artistLabel, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkClicked(const QString &)));
+    connect(ui->titleLabel, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkActivated(const QString &)));
+    connect(ui->artistLabel, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkActivated(const QString &)));
     connect(m_playFrame, SIGNAL(mouseClicked()), this, SLOT(iconClicked()));
 
     QPixmap maskPixmap;

@@ -14,7 +14,7 @@ class PlaybackQueue : public QAbstractTableModel
 
 public:
     enum PlaybackMode {
-        CurrentItemOnce,
+        //CurrentItemOnce,
         CurrentItemInLoop,
         Sequential,
         Loop,
@@ -37,6 +37,7 @@ public:
     void setPlaybackMode(PlaybackMode mode);
 
     int currentIndex() const;
+    const QString &currentTrackId() const;
     const Track &currentTrack() const;
 
     int nextIndex(int steps = 1) const;

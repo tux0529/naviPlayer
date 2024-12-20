@@ -87,6 +87,9 @@ public:
     }
 
     static void G_Debug(const QVariant &str, const QVariant &str2 = QVariant(), const QVariant &str3=QVariant() ){
+        Q_UNUSED(str);
+        Q_UNUSED(str2);
+        Q_UNUSED(str3);
 #ifdef G_DEBUG
         if(str2.toString().isEmpty() && str3.toString().isEmpty()){
             qDebug() << str.toString();

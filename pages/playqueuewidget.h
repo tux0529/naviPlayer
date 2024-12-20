@@ -29,9 +29,14 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private slots:
-    // void onCurrentIndexChanged(int index);
+    void onCurrentIndexChanged(int index);
     void onTrackCountChanged(int count);
     void onRowDoubleClicked(const QModelIndex &index);
+    void onClearButtonClicked();
+    void onPlaybackModeButtonClicked();
+    void onMoveUpButtonClicked();
+    void onMoveDownButtonClicked();
+    void onRemoveButtonClicked();
 
 private:
     Ui::PlayQueueWidget *ui;

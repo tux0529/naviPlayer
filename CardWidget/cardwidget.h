@@ -28,7 +28,7 @@ public:
 
 signals:
     void playIconClicked(const QString &albumId);
-    void linkClicked(const QString &link);
+    void linkActivated(const QString &link);
 
 private slots:
     void iconClicked();

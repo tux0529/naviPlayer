@@ -111,6 +111,7 @@ bool PlaybackQueue::removeRows(int position, int rows, const QModelIndex &index)
         m_trackList.removeAt(position);
 
     endRemoveRows();
+    emit trackCountChanged(trackCount());
     return true;
 }
 
@@ -145,6 +146,11 @@ int PlaybackQueue::currentIndex() const
     return this->m_currentIndex;
 }
 
+const QString &PlaybackQueue::currentTrackId() const
+{
+    return this->m_trackList.at(m_currentIndex).id();
+}
+
 const Track &PlaybackQueue::currentTrack() const
 {
     return this->m_trackList.at(m_currentIndex);
@@ -165,9 +171,13 @@ int PlaybackQueue::nextIndex(int steps) const
             next = next - this->m_trackList.size();
 
         break;
-    default:
+    case CurrentItemInLoop:
+        next = m_currentIndex;
+        break;
+    case Sequential:
         if (m_currentIndex + steps < this->m_trackList.size() )
             next = m_currentIndex + steps;
+    default:
         break;
     }
 
@@ -189,9 +199,13 @@ int PlaybackQueue::previousIndex(int steps) const
             prev = prev + this->m_trackList.size();
 
         break;
-    default:
+    case CurrentItemInLoop:
+        prev = m_currentIndex;
+        break;
+    case Sequential:
         if ( m_currentIndex - steps > -1 )
             prev = m_currentIndex - steps;
+    default:
         break;
     }
     return prev;
@@ -277,7 +291,15 @@ bool PlaybackQueue::insertTracks(int index, const QList<Track> &items)
 
 bool PlaybackQueue::removeTrack(int pos)
 {
+    // if(pos < 0 || pos > this->m_trackList.size() - 1 ){
+    //     return false;
+    // }
     this->removeRows(pos, 1);
+
+    if(pos < m_currentIndex){
+        --m_currentIndex;
+    }
+
     emit trackRemoved(pos, pos);
 
     emit trackCountChanged(trackCount());
@@ -286,6 +308,9 @@ bool PlaybackQueue::removeTrack(int pos)
 
 bool PlaybackQueue::removeTracks(int start, int end)
 {
+    // if(start < 0 || start > this->m_trackList.size() - 1 || end < 0 || end > this->m_trackList.size() - 1){
+    //     return false;
+    // }
     this->removeRows(start, end - start + 1);
     emit trackRemoved(start, end);
 
@@ -297,15 +322,35 @@ bool PlaybackQueue::clear()
 {
     beginResetModel();
     this->m_trackList.clear();
-    beginResetModel();
+    endResetModel();
     m_currentIndex = -1;
+
+    emit trackCountChanged(trackCount());
+
     return true;
 }
 
 bool PlaybackQueue::moveTrack(int from, int to)
 {
+    // if(from < 0 || from > this->m_trackList.size() - 1 || to < 0 || to > this->m_trackList.size() - 1){
+    //     return false;
+    // }
     beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
     this->m_trackList.move(from, to);
+    if(from == m_currentIndex){
+        m_currentIndex = to;
+    }
+    else{
+        for(int i = m_currentIndex - 1; i < m_currentIndex + 2; ++i){
+            if (i < 0 || i > this->m_trackList.size() -1 )
+                continue;
+
+            if (this->m_trackList.at(i).id() == m_currentTrack.id() ){
+                m_currentIndex = i;
+                break;
+            }
+        }
+    }
     endMoveRows();
     return true;
 }
