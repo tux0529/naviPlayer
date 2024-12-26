@@ -46,7 +46,7 @@ QVariant PlaybackQueue::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (index.column() == 0){
-            return  QString("<span style='color: %2;'>%1</span>").arg( song.track(), index.row() == m_currentIndex ? "#00BB9E" : "#dcdcdc");
+            return  QString("<span style='color: %2;'>%1</span>").arg( QString::number(index.row() + 1), index.row() == m_currentIndex ? "#00BB9E" : "#dcdcdc");
         }
         else if (index.column() == 1){
             return  QString("<span style='color: %3;'>%1</span><br/> <a style='color: %3;' href='search://artist=%2'>%2</a>")

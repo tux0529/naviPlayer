@@ -20,7 +20,7 @@ public:
     void loadArtist(const QString &id);
 
 signals:
-    void linkClicked(const QString &link);
+    void linkActivated(const QString &link);
     void playAlbum(const QString &albumId);
 
 private:

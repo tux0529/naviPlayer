@@ -530,7 +530,7 @@ void PlayWorker::freeAVMem()
     avformat_free_context(m_fmtCtx);
 
 
-    free(m_audio_out_buffer);
+    av_free(m_audio_out_buffer);
 
 }
 

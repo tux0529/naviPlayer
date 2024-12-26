@@ -34,7 +34,7 @@ void ArtistInfoPage::loadArtist(const QString &id)
     for(int i = m_artistObject.albumCount(); i > 0; --i){
         const Album &a = m_artistObject.at(i-1);
         CardWidget *cw = new CardWidget(a, this);
-        connect(cw, SIGNAL(linkClicked(const QString &)), this, SIGNAL(linkClicked(const QString &)));
+        connect(cw, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkActivated(const QString &)));
         connect(cw, SIGNAL(playIconClicked(const QString &)), this, SIGNAL(playAlbum(const QString &)));
         ui->albumCardList->addCard( cw );
     }

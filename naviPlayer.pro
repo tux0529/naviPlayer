@@ -11,7 +11,7 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += G_DEBUG
+#DEFINES += G_DEBUG
 
 INCLUDEPATH     += $$PWD/common
 INCLUDEPATH     += $$PWD/pages
@@ -42,7 +42,7 @@ SOURCES += \
     common/playlistobject.cpp \
     common/track.cpp \
     common/trackobject.cpp \
-    common/tracktablemodel.cpp \
+#    common/tracktablemodel.cpp \
     common/tracktableview.cpp \
     main.cpp \
     mainwidget.cpp \
@@ -83,7 +83,7 @@ HEADERS += \
     common/playlistobject.h \
     common/track.h \
     common/trackobject.h \
-    common/tracktablemodel.h \
+#    common/tracktablemodel.h \
     common/tracktableview.h \
     mainwidget.h \
     pages/albuminfopage.h \

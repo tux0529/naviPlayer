@@ -79,7 +79,7 @@ void Application::setTheme(const QString &theme)
 
     //
 #ifdef Q_OS_MACOS
-    font.setPointSize(13);
+    font.setPointSize(14);
 #else
     font.setPointSize(9);
 #endif

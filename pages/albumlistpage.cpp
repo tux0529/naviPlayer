@@ -43,29 +43,29 @@ void AlbumListPage::resizeTableView()
 
 QString AlbumListPage::pageString(int page)
 {
-    QString pagerString = "<style>a{color: #DCDCDC; text-decoration:none;white-space: pre;} ";
-    pagerString += "span{color: #00BB9E;}</style>";
+    QString pagerString = "<style>a{color: #DCDCDC; text-decoration:none;white-space: pre;}";
+    pagerString += "a:hover{color: #DCDCDC;} span{color: #00BB9E;white-space: pre;}</style>";
 
     if(MediaHelper::s_albumPageSize < 5){
         for(int i = 0; i < MediaHelper::s_albumPageSize; ++i){
 
             if (page == i +1){
-                pagerString += QString("<span> %1 </span>").arg(i+1);
+                pagerString += QString("<span>  %1  </span>").arg(i+1);
             }
             else{
-                pagerString += QString("<a href='%1'> %1 </a>").arg(i+1);
+                pagerString += QString("<a href='%1'>  %1  </a>").arg(i+1);
             }
         }
     }
     else{
 
         if(page > 1){
-            pagerString += QString("<a href='%1'> ＜ </a>").arg(page - 1);
-            pagerString += QString("<a href='1'> 1 </a>");
+            pagerString += QString("<a href='%1'>＜  </a>").arg(page - 1);
+            pagerString += QString("<a href='1'>  1  </a>");
         }
         else{
-            pagerString += QString("<span> ＜ </span>");
-            pagerString += QString("<span> 1 </span>");
+            pagerString += QString("<span>＜  </span>");
+            pagerString += QString("<span>  1  </span>");
         }
 
         if(page > 3){
@@ -73,25 +73,25 @@ QString AlbumListPage::pageString(int page)
         }
 
         if (page == 1){
-            pagerString += QString("<a href='2'> 2 </a>");
-            pagerString += QString("<a href='3'> 3 </a>");
+            pagerString += QString("<a href='2'>  2  </a>");
+            pagerString += QString("<a href='3'>  3  </a>");
         }
         else if (page == 2){
-            pagerString += QString("<span> 2 </span>");
-            pagerString += QString("<a href='3'> 3 </a>");
+            pagerString += QString("<span>  2  </span>");
+            pagerString += QString("<a href='3'>  3  </a>");
         }
         else if(page == MediaHelper::s_albumPageSize - 1){
-            pagerString += QString("<a href='%1'> %1 </a>").arg(page-1);
-            pagerString += QString("<span> %1 </span>").arg(page);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(page-1);
+            pagerString += QString("<span>  %1  </span>").arg(page);
         }
         else if(page == MediaHelper::s_albumPageSize){
-            pagerString += QString("<a href='%1'> %1 </a>").arg(page-1);
-            pagerString += QString("<a href='%1'> %1 </a>").arg(page);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(page-2);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(page-1);
         }
         else{
-            pagerString += QString("<a href='%1'> %1 </a>").arg(page-1);
-            pagerString += QString("<span> %1 </span>").arg(page);
-            pagerString += QString("<a href='%1'> %1 </a>").arg(page+1);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(page-1);
+            pagerString += QString("<span>  %1  </span>").arg(page);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(page+1);
         }
 
         if(MediaHelper::s_albumPageSize - page > 2){
@@ -99,12 +99,12 @@ QString AlbumListPage::pageString(int page)
         }
 
         if(page < MediaHelper::s_albumPageSize){
-            pagerString += QString("<a href='%1'> %1 </a>").arg(MediaHelper::s_albumPageSize);
-            pagerString += QString("<a href='%1'> ＞ </a>").arg(page + 1);
+            pagerString += QString("<a href='%1'>  %1  </a>").arg(MediaHelper::s_albumPageSize);
+            pagerString += QString("<a href='%1'>  ＞  </a>").arg(page + 1);
         }
         else{
-            pagerString += QString("<span> %1 </span>").arg(MediaHelper::s_albumPageSize);
-            pagerString += QString("<span> ＞ </span>");
+            pagerString += QString("<span>  %1  </span>").arg(MediaHelper::s_albumPageSize);
+            pagerString += QString("<span>  ＞  </span>");
         }
     }
     Config::G_Debug("AlbumListPage::pagerString: ", pagerString);
@@ -122,8 +122,6 @@ void AlbumListPage::onRowDoubleClicked(const QModelIndex &index)
 
     emit linkActivated(QString("search://album=%1").arg(m_model->data(index, Qt::UserRole).toString()));
 
-    //Config::G_Debug("AlbumListPage::onRowDoubleClicked:Row: ", index.row());
-    //Config::G_Debug("AlbumListPage::onRowDoubleClicked:albumId: ", m_model->data(index, Qt::UserRole).toString());
 }
 
 void AlbumListPage::updateData(const QString &page)
@@ -149,21 +147,6 @@ void AlbumListPage::updateData(const QString &page)
                         (p-1)*Config::s_options.albumCountPerPage);
 
     ui->label->setText(QString("%1 - %2").arg((p-1)*Config::s_options.albumCountPerPage + 1).arg(albumEndNum));
-
-    /*
-    QString pagerString = "<style>a{color: #DCDCDC; text-decoration:none;white-space: pre;} ";
-    pagerString += "span{color: #00BB9E;}</style>";
-
-    for(int i = 0; i < MediaHelper::s_albumPageSize; ++i){
-
-        if (p == i +1){
-            pagerString += QString("<span> %1 </span>").arg(i+1);
-        }
-        else{
-            pagerString += QString("<a href='%1'> %1 </a>").arg(i+1);
-        }
-    }
-    */
 
     ui->pagerLabel->setText( this->pageString(p) );
 

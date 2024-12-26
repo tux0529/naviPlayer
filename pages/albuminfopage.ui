@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0,0,10">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0,0,10,0">
    <property name="horizontalSpacing">
     <number>24</number>
    </property>
@@ -36,36 +36,22 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="pageTitleLabel">
-     <property name="font">
-      <font>
-       <pointsize>36</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Brian.Crain</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="pageInfoLabel">
-     <property name="text">
-      <string>Playlist · 17 songs, 11 hr 9 min 43 sec · Private</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="pageInfo2Label">
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>24</number>
+     </property>
      <item>
       <widget class="QPushButton" name="playButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>56</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Play this Album</string>
+       </property>
        <property name="text">
         <string>Play</string>
        </property>
@@ -73,6 +59,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="insertToQueueButton">
+       <property name="toolTip">
+        <string>Insert to the Queue</string>
+       </property>
        <property name="text">
         <string>Insert to queue</string>
        </property>
@@ -90,6 +79,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="favorButton">
+       <property name="toolTip">
+        <string>Toggle favorite</string>
+       </property>
        <property name="text">
         <string>Favor</string>
        </property>
@@ -109,6 +101,44 @@
       </spacer>
      </item>
     </layout>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="pageInfo2Label">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Added Dec. 18, 2024 · Genre</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="pageTitleLabel">
+     <property name="font">
+      <font>
+       <pointsize>36</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Brian.Crain</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="pageInfoLabel">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Playlist · 17 songs, 11 hr 9 min 43 sec · Private</string>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="TrackTableView" name="tableView"/>

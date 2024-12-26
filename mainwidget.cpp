@@ -264,7 +264,7 @@ void MainWidget::initForm()
 
     //Init ArtistInfo Page
     m_artistInfoPage->setObjectName(QString::fromUtf8("artistInfoPage"));
-    connect(m_artistInfoPage, SIGNAL(linkClicked(const QString &)), this, SLOT(onLinkClicked(const QString &)));
+    connect(m_artistInfoPage, SIGNAL(linkActivated(const QString &)), this, SLOT(onLinkClicked(const QString &)));
     connect(m_artistInfoPage, SIGNAL(playAlbum(const QString &)), this, SLOT(onPlayAlbum(const QString &)));
     ui->stackedWidget->insertWidget(8, m_artistInfoPage);
 

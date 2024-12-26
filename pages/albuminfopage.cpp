@@ -4,6 +4,7 @@
 #include "application.h"
 
 #include "mediahelper.h"
+#include "iconhelper.h"
 
 
 
@@ -144,6 +145,21 @@ void AlbumInfoPage::initForm()
 
     ui->tableView->setItemDelegate(m_anchorItemDelegate);
 
+    IconHelper::Instance()->setIcon(ui->playButton, QChar(0xF144), 36);
+    IconHelper::Instance()->setIcon(ui->appendToQueueEndButton, QChar(0xF067), 24);
+    IconHelper::Instance()->setIcon(ui->insertToQueueButton, QChar(0xF055), 24);
+    IconHelper::Instance()->setIcon(ui->favorButton, QChar(0xF08a), 24);
+
+    connect(ui->playButton, SIGNAL(clicked()),
+            this, SIGNAL(linkActivated(const QString &)));
+    connect(ui->appendToQueueEndButton, SIGNAL(clicked()),
+            this, SIGNAL(linkActivated(const QString &)));
+    connect(ui->insertToQueueButton, SIGNAL(clicked()),
+            this, SIGNAL(linkActivated(const QString &)));
+    connect(ui->favorButton, SIGNAL(clicked()),
+            this, SIGNAL(linkActivated(const QString &)));
+
     connect(ui->tableView, SIGNAL(linkActivated(const QString &)), this, SIGNAL(linkActivated(const QString &)));
     //connect(ui->tableView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onRowDoubleClicked(const QModelIndex &)));
 }
+

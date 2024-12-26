@@ -42,7 +42,7 @@ QVariant AlbumListModel::data(const QModelIndex &index, int role) const
         if (index.column() == 0)
             return  index.row() + 1;
         else if (index.column() == 1)
-            return  QString("<style>a{color: #CCCCCC; text-decoration:none;}p{margin: 4px 0px;}</style><p>%1</p> <p><a href='search://artist=%2'>%2</a></p>").arg(album.name(), album.artist());
+            return  QString("<style>a{color: #CCCCCC; text-decoration:none;}p{margin: 4px 0px;}</style><p>%1</p> <p><a href='search://artist=%2'>%3</a></p>").arg(album.name(), album.artistId(), album.artist());
         else if (index.column() == 2)
             return album.songCount();
         else if (index.column() == 3)
