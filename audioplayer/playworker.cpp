@@ -531,6 +531,7 @@ void PlayWorker::freeAVMem()
 
 
     av_free(m_audio_out_buffer);
+    free(m_audio_out_buffer);
 
 }
 
