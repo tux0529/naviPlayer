@@ -4,6 +4,7 @@
 
 #include <QTime>
 #include <QCoreApplication>
+#include <QTimer>
 
 #define MAX_AUDIO_FRAME_SIZE 192000
 
@@ -114,12 +115,18 @@ void PlayWorker::seek(qint64 pos)
     else
         decodeAudio();
 
-
 //    Config::G_Debug("PlayWorker::seek: seekPosition:", m_seekPosition);
+
 }
 
 void PlayWorker::decodeAudio()
 {
+
+    // QTimer::singleShot(5000, this, SLOT(testSlot()));
+    // emit stateChanged(AudioPlayer::PlayingState);
+    // return;
+
+
 
     qint64 duration;
 
@@ -468,7 +475,6 @@ void PlayWorker::decodeAudio()
                             else if(PlayWorker::controlPlay  == m_flag){
                                 emit stateChanged(AudioPlayer::PlayingState);
                                 m_pauseStateWaitTimes = 0;
-
                                 break;
                             }
                             else if(m_pauseStateWaitTimes >= PAUSE_STATE_MAX_WAIT_TIMES){
@@ -518,7 +524,6 @@ void PlayWorker::freeAVMem()
 
     swr_free(&m_swr_ctx);
 
-
     av_frame_unref(m_frame);
     av_frame_free(&m_frame);
     av_free(m_frame);
@@ -529,9 +534,7 @@ void PlayWorker::freeAVMem()
     avformat_close_input(&m_fmtCtx);
     avformat_free_context(m_fmtCtx);
 
-
     av_free(m_audio_out_buffer);
-    free(m_audio_out_buffer);
 
 }
 

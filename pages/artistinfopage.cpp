@@ -4,6 +4,7 @@
 #include "CardWidget/cardwidget.h"
 
 #include "mediahelper.h"
+#include "iconhelper.h"
 
 
 
@@ -14,7 +15,13 @@ ArtistInfoPage::ArtistInfoPage(QWidget *parent)
     , ui(new Ui::ArtistInfoPage)
 {
     ui->setupUi(this);
+
     ui->albumCardList->setTitle(QCoreApplication::translate("ArtistInfoPage", "Albums", nullptr));
+
+    IconHelper::Instance()->setIcon(ui->playButton, QChar(0xF144), 36);
+    IconHelper::Instance()->setIcon(ui->appendToQueueEndButton, QChar(0xF067), 24);
+    IconHelper::Instance()->setIcon(ui->insertToQueueButton, QChar(0xF055), 24);
+    IconHelper::Instance()->setIcon(ui->favorButton, QChar(0xF08a), 24);
 }
 
 ArtistInfoPage::~ArtistInfoPage()

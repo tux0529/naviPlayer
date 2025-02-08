@@ -29,13 +29,19 @@ MediaHelper::MediaHelper(QObject *parent)
 
 const QIcon &MediaHelper::getAlbumIcon(const QString &albumId)
 {
+    static QMutex iconMutex;
     if(!MediaHelper::Instance()->m_albumIconMap.contains(albumId)){
-        QString iconPath = MediaHelper::Instance()->getCoverArt(albumId, MediaHelper::AlbumCover, MediaHelper::Icon );
-        QIcon icon;
-        if (!iconPath.isEmpty()){
-            icon.addFile(iconPath);
+
+        QMutexLocker locker(&iconMutex);
+        if(!MediaHelper::Instance()->m_albumIconMap.contains(albumId)){
+
+            QString iconPath = MediaHelper::Instance()->getCoverArt(albumId, MediaHelper::AlbumCover, MediaHelper::Icon );
+            QIcon icon;
+            if (!iconPath.isEmpty()){
+                icon.addFile(iconPath);
+            }
+            MediaHelper::Instance()->m_albumIconMap.insert(albumId, icon);
         }
-        MediaHelper::Instance()->m_albumIconMap.insert(albumId, icon);
     }
     return MediaHelper::Instance()->m_albumIconMap[albumId];
 }

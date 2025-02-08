@@ -13,12 +13,12 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0,0,10,0">
+  <layout class="QGridLayout" name="gridLayout" rowstretch="1,0,0,0,10">
    <property name="horizontalSpacing">
     <number>24</number>
    </property>
    <property name="verticalSpacing">
-    <number>12</number>
+    <number>9</number>
    </property>
    <item row="0" column="0" rowspan="4">
     <widget class="QLabel" name="posterLabel">
@@ -36,72 +36,6 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>24</number>
-     </property>
-     <item>
-      <widget class="QPushButton" name="playButton">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>56</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Play this Album</string>
-       </property>
-       <property name="text">
-        <string>Play</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="insertToQueueButton">
-       <property name="toolTip">
-        <string>Insert to the Queue</string>
-       </property>
-       <property name="text">
-        <string>Insert to queue</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="appendToQueueEndButton">
-       <property name="toolTip">
-        <string>Add to the End of Queue</string>
-       </property>
-       <property name="text">
-        <string>Append to queue</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="favorButton">
-       <property name="toolTip">
-        <string>Toggle favorite</string>
-       </property>
-       <property name="text">
-        <string>Favor</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
    <item row="2" column="1">
     <widget class="QLabel" name="pageInfo2Label">
      <property name="minimumSize">
@@ -117,6 +51,12 @@
    </item>
    <item row="0" column="1">
     <widget class="QLabel" name="pageTitleLabel">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>60</height>
+      </size>
+     </property>
      <property name="font">
       <font>
        <pointsize>36</pointsize>
@@ -142,6 +82,98 @@
    </item>
    <item row="4" column="0" colspan="2">
     <widget class="TrackTableView" name="tableView"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QWidget" name="controlBar" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>42</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>24</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="playButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>42</width>
+          <height>42</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>42</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Play this Album</string>
+        </property>
+        <property name="text">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="insertToQueueButton">
+        <property name="toolTip">
+         <string>Insert to the Queue</string>
+        </property>
+        <property name="text">
+         <string>Insert to queue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="appendToQueueEndButton">
+        <property name="toolTip">
+         <string>Add to the End of Queue</string>
+        </property>
+        <property name="text">
+         <string>Append to queue</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="favorButton">
+        <property name="toolTip">
+         <string>Toggle favorite</string>
+        </property>
+        <property name="text">
+         <string>Favor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

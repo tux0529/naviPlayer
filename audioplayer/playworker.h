@@ -60,6 +60,12 @@ public slots:
     void pause();
     void seek(qint64 pos = -1);
 
+    void testSlot(){
+        m_mediaStatus = AudioPlayer::EndOfMedia;
+        emit mediaStatusChanged(AudioPlayer::EndOfMedia);
+        emit stateChanged(AudioPlayer::StoppedState);
+    }
+
 signals:
     void ERROR(AudioPlayer::Error error, const QString &msg);
     void durationChanged(qint64 duration);
