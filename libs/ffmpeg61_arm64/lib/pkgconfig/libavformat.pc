@@ -1,0 +1,14 @@
+prefix=/Users/redtux/Documents/Nextcloud/Projects/Qt/naviPlayer/libs/ffmpeg61_arm64
+exec_prefix=${prefix}
+libdir=/Users/redtux/Documents/Nextcloud/Projects/Qt/naviPlayer/libs/ffmpeg61_arm64/lib
+includedir=/Users/redtux/Documents/Nextcloud/Projects/Qt/naviPlayer/libs/ffmpeg61_arm64/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 60.16.101
+Requires: 
+Requires.private: libavcodec >= 60.31.102, libswresample >= 4.12.100, libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lavformat 
+Libs.private: -lm -lbz2 -L/Users/redtux/Downloads/ffmpeg-apple-arm64/ffmpeg-compile/tool/lib -lz -Wl,-framework,CoreFoundation -Wl,-framework,Security
+Cflags: -I${includedir}

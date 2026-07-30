@@ -1,0 +1,14 @@
+prefix=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64
+exec_prefix=${prefix}
+libdir=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64/lib
+includedir=/Users/redtux/Nextcloud/Project/Qt/naviPlayer/lib/macOS/ffmpeg61_arm64/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 60.31.102
+Requires: 
+Requires.private: libswresample >= 4.12.100, libavutil >= 58.29.100
+Conflicts:
+Libs: -L${libdir}  -lavcodec 
+Libs.private: -pthread -liconv -lm -L/opt/local/lib -lfdk-aac -L/opt/local/lib -lopus -L/opt/local/lib -lvorbis -L/opt/local/lib -lz
+Cflags: -I${includedir}
