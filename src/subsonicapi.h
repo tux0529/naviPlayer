@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QSet>
 #include <QXmlStreamReader>
 #include "models/song.h"
 #include "models/album.h"
@@ -37,6 +38,8 @@ public:
     void getStarred();
     void search3(const QString &query, int artistCount = 20, int albumCount = 20, int songCount = 20);
     void getCoverArt(const QString &coverArtId, int size = 0);
+    /// 立即中止当前所有未完成的 getCoverArt 请求，为高优先级请求（如 getArtist、getAlbum）腾出连接槽。
+    void cancelPendingCoverArts();
     void stream(const QString &songId, int maxBitRate = 0);
     QString getStreamUrl(const QString &songId, int maxBitRate = 0);
     QString getCoverArtUrl(const QString &coverArtId, int size = 0);
@@ -79,6 +82,7 @@ private:
     QString md5(const QString &input) const;
 
     QNetworkAccessManager *m_networkManager;
+    QSet<QNetworkReply *> m_pendingCoverArtReplies;
     QString m_serverUrl;
     QString m_username;
     QString m_password;

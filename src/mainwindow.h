@@ -26,6 +26,8 @@
 #include "models/album.h"
 #include "models/artist.h"
 
+class QCloseEvent;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -33,6 +35,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void onNavigationItemSelected(NavigationWidget::NavigationItem item);
@@ -71,6 +76,8 @@ private:
     void setupConnections();
     void loadSettings();
     void saveSettings();
+    void restorePlaybackSession();
+    void savePlaybackSession();
     void showHome();
     void showFavorites();
     void showAlbums();

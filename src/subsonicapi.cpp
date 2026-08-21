@@ -28,6 +28,10 @@ SubsonicApi::SubsonicApi(QObject *parent)
     , m_clientName("naviPlayer")
     , m_apiVersion("1.16.1")
 {
+    // 注：QNetworkAccessManager 对同 host 默认并发上限平台相关（Qt5 可用 setMaximumConnectionsPerHost，
+    // Qt6 已弃用且没有替代 setter）。我们不依赖更高并发数：在 ArtistWidget / AlbumWidget 里通过
+    // cancelPendingCoverArts() 在用户交互、滚动、切页时主动 abort 正在排队的封面请求，
+    // 从而把 QNAM 的有限并发槽让给 getArtist / getAlbum / album list 等高优先级请求。
     connect(m_networkManager, &QNetworkAccessManager::finished,
             this, &SubsonicApi::onReplyFinished);
 }
@@ -188,7 +192,27 @@ void SubsonicApi::getCoverArt(const QString &coverArtId, int size)
     if (size > 0) {
         params["size"] = QString::number(size);
     }
-    sendRequest("getCoverArt", params);
+    QNetworkReply *reply = sendRequest("getCoverArt", params);
+    if (reply) {
+        m_pendingCoverArtReplies.insert(reply);
+        // finished 路径已经由 onReplyFinished 统一处理，这里用 destroyed 兜底从集合移除
+        connect(reply, &QObject::destroyed, this, [this, reply]() {
+            m_pendingCoverArtReplies.remove(reply);
+        });
+    }
+}
+
+void SubsonicApi::cancelPendingCoverArts()
+{
+    // 复制一份再迭代：abort 会触发 destroyed 回调修改 m_pendingCoverArtReplies
+    const QSet<QNetworkReply *> pending = m_pendingCoverArtReplies;
+    for (QNetworkReply *reply : pending) {
+        if (!reply) {
+            continue;
+        }
+        // onReplyFinished 会收到 OperationCanceledError 并从集合里移除，不会触发重试（getCoverArt 本就不重试）
+        reply->abort();
+    }
 }
 
 void SubsonicApi::stream(const QString &songId, int maxBitRate)
@@ -255,8 +279,12 @@ void SubsonicApi::onReplyFinished(QNetworkReply *reply)
 {
     if (!reply) return;
 
+    const QString method = reply->property("requestMethod").toString();
+    if (method == "getCoverArt") {
+        m_pendingCoverArtReplies.remove(reply);
+    }
+
     QString url = reply->url().toString();
-    QString method = reply->property("requestMethod").toString();
     QVariantMap paramMap = reply->property("requestParams").toMap();
     int retryCount = reply->property("retryCount").toInt();
     qDebug() << "Received response from:" << url;

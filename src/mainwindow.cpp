@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QSet>
 #include <QTimer>
+#include <QCloseEvent>
 
 namespace {
 constexpr qint64 kDefaultCacheTtlSecs = 600;
@@ -62,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupUI();
     setupConnections();
     loadSettings();
+    restorePlaybackSession();
 
     // Check if server is configured
     if (!m_subsonicApi->isConfigured()) {
@@ -499,6 +501,13 @@ void MainWindow::setupConnections()
         PlaylistWidget::PlayMode playlistMode = static_cast<PlaylistWidget::PlayMode>(mode);
         m_playlistWidget->setPlayMode(playlistMode);
     });
+    // 切歌前保存当前播放会话（含上一首进度），防止异常退出丢失进度
+    connect(m_audioPlayer, &AudioPlayer::trackAboutToChange,
+            this, [this](const QString &songId, qint64 position) {
+        Q_UNUSED(songId)
+        Q_UNUSED(position)
+        savePlaybackSession();
+    });
 
     // Subsonic API
     connect(m_subsonicApi, &SubsonicApi::pingFinished,
@@ -581,6 +590,46 @@ void MainWindow::saveSettings()
     m_dbManager->saveConfig("albumPageSize", m_albumPageSize);
     m_dbManager->saveConfig("cacheTtlMinutes",
                             static_cast<int>(qMax<qint64>(1, m_cacheTtlSecs / 60)));
+}
+
+void MainWindow::savePlaybackSession()
+{
+    const QVector<Song> playlist = m_audioPlayer->playlist();
+    const int currentIndex = m_audioPlayer->currentIndex();
+    const qint64 position = m_audioPlayer->position();
+    const int playMode = static_cast<int>(m_audioPlayer->playMode());
+    m_dbManager->savePlaybackSession(playlist, currentIndex, position, playMode);
+}
+
+void MainWindow::restorePlaybackSession()
+{
+    if (!m_subsonicApi->isConfigured()) {
+        return;
+    }
+
+    QVector<Song> songs;
+    int currentIndex = -1;
+    qint64 position = 0;
+    int playMode = 0;
+    if (!m_dbManager->loadPlaybackSession(&songs, &currentIndex, &position, &playMode)) {
+        return;
+    }
+
+    QStringList streamUrls;
+    streamUrls.reserve(songs.size());
+    for (const Song &song : songs) {
+        streamUrls.append(resolvePlaybackSource(song));
+    }
+
+    m_audioPlayer->restoreSession(songs, streamUrls, currentIndex, position,
+                                  static_cast<AudioPlayer::PlayMode>(playMode));
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    savePlaybackSession();
+    saveSettings();
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::onNavigationItemSelected(NavigationWidget::NavigationItem item)

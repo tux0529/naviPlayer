@@ -41,6 +41,9 @@ public:
     void nextPlayMode();
 
     void playPlaylist(const QVector<Song> &songs, const QStringList &streamUrls, int startIndex = 0);
+    // 恢复上一次播放会话：以暂停状态从指定进度恢复，等待用户继续播放
+    void restoreSession(const QVector<Song> &songs, const QStringList &streamUrls,
+                        int startIndex, qint64 position, PlayMode playMode);
     void addToPlaylist(const Song &song, const QString &streamUrl);
     void addToNext(const QVector<Song> &songs, const QStringList &streamUrls);
     void removeFromPlaylist(int index);
@@ -66,6 +69,8 @@ signals:
     void playlistChanged(const QVector<Song> &songs);
     void currentIndexChanged(int index);
     void playModeChanged(PlayMode mode);
+    // 即将切换到新曲目，附带旧曲目 id 与播放进度，便于持久化
+    void trackAboutToChange(const QString &songId, qint64 position);
 
 private slots:
     void onDecoderStateChanged(bool playing);
@@ -78,6 +83,7 @@ private:
     void setState(State state);
     void generateShuffleIndices();
     bool hasValidCurrentIndex() const;
+    void emitTrackAboutToChange();
 
     FFmpegAudioDecoder *m_decoder;
     State m_state;

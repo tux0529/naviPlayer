@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QHash>
 #include <QSet>
+#include <QResizeEvent>
 #include "../models/album.h"
 #include "../models/song.h"
 
@@ -28,6 +29,9 @@ public:
     void setAlbums(const QVector<Album> &albums);
     void clear();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 signals:
     void albumSelected(const Album &album);
     void playAlbumRequested(const Album &album);
@@ -40,6 +44,7 @@ public slots:
 private:
     void setupUI();
     void updateUI();
+    int computeColumns() const;
     void loadAlbumCover(QLabel *coverLabel, const QString &coverArtId);
     void requestVisibleCovers();
     bool isVisibleInViewport(QWidget *widget) const;

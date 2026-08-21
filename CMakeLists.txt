@@ -89,7 +89,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
                MACOSX_PACKAGE_LOCATION "Resources"
         )
 
-        qt_add_executable(renamer
+        qt_add_executable(naviPlayer
             MACOSX_BUNDLE
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
@@ -100,7 +100,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     #! [appicon_macOS]
 
     else()
-        qt_add_executable(renamer
+        qt_add_executable(naviPlayer
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
             ${PROJECT_HEADERS}
@@ -109,7 +109,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
     endif()
     # Define target properties for Android with Qt 6 as:
-    #    set_property(TARGET renamer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+    #    set_property(TARGET naviPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
     #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
     # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
@@ -152,16 +152,34 @@ else()
     target_compile_definitions(naviPlayer PRIVATE NAVIPLAYER_QT5)
 endif()
 
-set(FFMPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg61_arm64)
+set(FFMPEGLIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpe61_arm64 CACHE PATH "ffmpeg directory")
+
+find_path(FFMPEG_INCLUDE_PATH
+    NAMES libavutil/version.h
+    HINTS ${FFMPEGLIB_DIR}/include
+)
+
+if(NOT FFMPEG_INCLUDE_PATH)
+    message(FATAL_ERROR "ffmpeg lib not found. Please specify -DFFMPEGLIB_DIR=/path/to/libffmpeg")
+endif()
+
+set(FFMPEG_LIBS avcodec avformat swresample avutil)
+foreach(LIB_NAME IN LISTS FFMPEG_LIBS)
+    find_library(${LIB_NAME}_LIB 
+        NAMES ${LIB_NAME}
+        HINTS ${FFMPEGLIB_DIR}/lib 
+    )
+    list(APPEND ALL_FFMPEG_LIBS ${${LIB_NAME}_LIB})
+endforeach()
 
 target_include_directories(naviPlayer PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${FFMPEG_DIR}/include
+    ${FFMPEG_INCLUDE_PATH}
 )
 
-target_link_directories(naviPlayer PRIVATE
-    ${FFMPEG_DIR}/lib
-)
+#target_link_directories(naviPlayer PRIVATE
+#    ${FFMPEG_LIB_PATH}
+#)
 
 target_link_libraries(naviPlayer PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
@@ -170,19 +188,13 @@ target_link_libraries(naviPlayer PRIVATE
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Multimedia
-    avcodec
-    avformat
-    avutil
-    swresample
+    ${ALL_FFMPEG_LIBS}
 )
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
     set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER cn.redtux.naviPlayer)
 endif()
 
-if(QT_VERSION_MAJOR GREATER_EQUAL 6)
-else()
-endif()
 
 if(APPLE)
     set_target_properties(naviPlayer PROPERTIES

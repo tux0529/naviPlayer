@@ -67,7 +67,7 @@ sudo apt-get install build-essential qtbase5-dev qtmultimedia5-dev
 ### 2. 克隆项目
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/tux0529/naviPlayer.git
 cd naviPlayer
 ```
 

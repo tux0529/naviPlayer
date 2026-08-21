@@ -7,13 +7,19 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QResizeEvent>
+#include <QScrollBar>
+#include <QTableWidget>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace {
 constexpr int kAvatarSize = 48;
 constexpr int kAvatarRequestSize = 64;
 constexpr qreal kAvatarRadius = 10.0;
-constexpr int kCoverArtRequestLimit = 40;
+// 只拉取视口上下各预加载一页，避免一上来发 40 个请求把 HTTP 连接池打满
+constexpr int kVisiblePreloadMarginRows = 6;
+// 防抖：快速滚动时不反复发请求，停下来再批量发
+constexpr int kCoverRequestDebounceMs = 120;
 
 QPixmap roundedPixmap(const QPixmap &pixmap, const QSize &targetSize, qreal radius)
 {
@@ -147,7 +153,12 @@ void ArtistWidget::setupUI()
     connect(m_tableWidget->horizontalHeader(), &QHeaderView::sortIndicatorChanged,
             this, [this](int logicalIndex, Qt::SortOrder order) {
         emit artistSortChanged(logicalIndex, order);
+        // 排序后视口行全变了，重新按需请求
+        QTimer::singleShot(0, this, [this]() { requestVisibleCoverArts(); });
     });
+    // 滚动时：先取消排队的低优先级封面请求，再防抖重新请求"当前视口"
+    connect(m_tableWidget->verticalScrollBar(), &QScrollBar::valueChanged,
+            this, &ArtistWidget::onVerticalScrollValueChanged);
 
     layout->addWidget(m_searchEdit);
     layout->addWidget(m_tableWidget, 1);
@@ -159,6 +170,15 @@ void ArtistWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
     updateResponsiveLayout();
+    // 窄窗口视口高度变化也会影响可见行数
+    requestVisibleCoverArts();
+}
+
+void ArtistWidget::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    // 从别的 Tab 切进来时：重新按当前视口请求，避免旧页留下的 pending 占带宽
+    requestVisibleCoverArts();
 }
 
 void ArtistWidget::setSubsonicApi(SubsonicApi *api)
@@ -181,7 +201,18 @@ void ArtistWidget::setCacheManager(CacheManager *cache)
 
 void ArtistWidget::setArtists(const QVector<Artist> &artists)
 {
+    // 新一批艺术家到来时，旧的封面请求对新表完全没意义，直接中止腾出连接
+    cancelPendingCoverArtRequests();
+    m_pendingCoverArtIds.clear();
+
     m_artists = artists;
+    m_artistById.clear();
+    m_artistById.reserve(artists.size());
+    for (const Artist &artist : artists) {
+        if (!artist.id().isEmpty()) {
+            m_artistById.insert(artist.id(), artist);
+        }
+    }
     rebuildTable();
 }
 
@@ -193,7 +224,11 @@ void ArtistWidget::setFavoriteArtistIds(const QSet<QString> &artistIds)
 
 void ArtistWidget::clear()
 {
+    // 切页/清空时立刻放弃未完成的封面请求，为下一个页面请求让路
+    cancelPendingCoverArtRequests();
+    m_pendingCoverArtIds.clear();
     m_artists.clear();
+    m_artistById.clear();
     if (m_tableWidget) {
         m_tableWidget->setRowCount(0);
     }
@@ -220,6 +255,9 @@ void ArtistWidget::rebuildTable()
         avatarItem->setIcon(QIcon(placeholder));
         avatarItem->setTextAlignment(Qt::AlignCenter);
         avatarItem->setData(Qt::UserRole, artist.id());
+        // 存一份 coverArtId 到额外 role，onCoverArtReceived 找视觉行时直接基于 avatar 列匹配
+        // （跨排序/搜索仍然有效：因为 avatarItem 跟着行走）
+        avatarItem->setData(Qt::UserRole + 1, artist.coverArtId());
         m_tableWidget->setItem(row, 0, avatarItem);
 
         QTableWidgetItem *nameItem = new QTableWidgetItem(artist.name());
@@ -294,32 +332,98 @@ void ArtistWidget::updateResponsiveLayout()
     m_tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 }
 
-void ArtistWidget::requestVisibleCoverArts()
+void ArtistWidget::cancelPendingCoverArtRequests()
 {
     if (!m_subsonicApi) {
         return;
     }
+    m_subsonicApi->cancelPendingCoverArts();
+}
 
-    int requested = 0;
-    for (auto it = m_coverArtRowMap.begin(); it != m_coverArtRowMap.end(); ++it) {
-        if (requested >= kCoverArtRequestLimit) {
-            break;
+void ArtistWidget::requestVisibleCoverArts()
+{
+    if (!m_subsonicApi || !m_tableWidget) {
+        return;
+    }
+
+    const int totalRows = m_tableWidget->rowCount();
+    if (totalRows <= 0) {
+        return;
+    }
+
+    // 计算视口可见行范围：先用 (0,0) 和 (viewportHeight-1, 0) 的视觉行夹出可见区
+    const int viewportHeight = m_tableWidget->viewport()->height();
+    const int firstVisualRow = qBound(0, m_tableWidget->rowAt(0), totalRows - 1);
+    // rowAt 若中间有隐藏行会 miss，兜底用二分：把坐标往下探
+    int lastVisualRow = m_tableWidget->rowAt(viewportHeight - 1);
+    if (lastVisualRow < 0) {
+        // 视口底部刚好在空白时尝试用下一个像素找；若仍无则假设可见 1 屏
+        lastVisualRow = m_tableWidget->rowAt(viewportHeight);
+        if (lastVisualRow < 0) {
+            const int rowHeight = qMax(1, m_tableWidget->rowHeight(firstVisualRow));
+            lastVisualRow = firstVisualRow + qMax(0, viewportHeight / rowHeight);
         }
-        const QString coverArtId = it.key();
+    }
+    lastVisualRow = qBound(0, lastVisualRow, totalRows - 1);
+
+    const int from = qMax(0, firstVisualRow - kVisiblePreloadMarginRows);
+    const int to = qMin(totalRows - 1, lastVisualRow + kVisiblePreloadMarginRows);
+
+    for (int visualRow = from; visualRow <= to; ++visualRow) {
+        if (m_tableWidget->isRowHidden(visualRow)) {
+            continue;
+        }
+        const QTableWidgetItem *nameItem = m_tableWidget->item(visualRow, 1);
+        if (!nameItem) {
+            continue;
+        }
+        const QString artistId = nameItem->data(Qt::UserRole).toString();
+        if (artistId.isEmpty()) {
+            continue;
+        }
+        const Artist artist = m_artistById.value(artistId);
+        const QString coverArtId = artist.coverArtId();
         if (coverArtId.isEmpty()) {
             continue;
         }
-        ++requested;
+        // 已经发过请求且未回调，不要再发一次
+        if (m_pendingCoverArtIds.contains(coverArtId)) {
+            continue;
+        }
+        // 缓存命中过的：rebuildTable 时已设置，不重新请求；这里检测 item 已经是非占位图的
+        // 快速路径：CacheManager 已在上游填过 icon，只需再查一次缓存。
+        if (m_cacheManager) {
+            const QPixmap cached = m_cacheManager->getCoverArt(coverArtId);
+            if (!cached.isNull()) {
+                QTableWidgetItem *avatarItem = m_tableWidget->item(visualRow, 0);
+                if (avatarItem) {
+                    const QPixmap rounded = roundedPixmap(cached,
+                                                           QSize(kAvatarSize, kAvatarSize),
+                                                           kAvatarRadius);
+                    avatarItem->setIcon(QIcon(rounded));
+                }
+                continue;
+            }
+        }
+        m_pendingCoverArtIds.insert(coverArtId);
         m_subsonicApi->getCoverArt(coverArtId, kAvatarRequestSize);
     }
 }
 
 Artist ArtistWidget::artistAtRow(int row) const
 {
-    if (row < 0 || row >= m_artists.size()) {
+    if (!m_tableWidget || row < 0 || row >= m_tableWidget->rowCount()) {
         return Artist();
     }
-    return m_artists[row];
+    const QTableWidgetItem *nameItem = m_tableWidget->item(row, 1);
+    if (!nameItem) {
+        return Artist();
+    }
+    const QString artistId = nameItem->data(Qt::UserRole).toString();
+    if (artistId.isEmpty()) {
+        return Artist();
+    }
+    return m_artistById.value(artistId);
 }
 
 void ArtistWidget::onSearchTextChanged(const QString &text)
@@ -338,6 +442,23 @@ void ArtistWidget::onSearchTextChanged(const QString &text)
         const bool match = keyword.isEmpty() || nameItem->text().contains(keyword, Qt::CaseInsensitive);
         m_tableWidget->setRowHidden(row, !match);
     }
+    // 搜索结果变了，立刻放弃旧 pending，重新按视口取
+    cancelPendingCoverArtRequests();
+    m_pendingCoverArtIds.clear();
+    QTimer::singleShot(kCoverRequestDebounceMs, this, [this]() {
+        requestVisibleCoverArts();
+    });
+}
+
+void ArtistWidget::onVerticalScrollValueChanged(int /*value*/)
+{
+    // 滚动途中：用户可能马上还有更大幅度滚动，把已经排队但仍未真正开始下载的封面请求直接 abort，
+    // 防止滚到新视口时 getArtist 这种高优先级请求被 40 个封面 reply 堵在 QNAM 后面。
+    cancelPendingCoverArtRequests();
+    // 防抖，停下来再发当前视口请求
+    QTimer::singleShot(kCoverRequestDebounceMs, this, [this]() {
+        requestVisibleCoverArts();
+    });
 }
 
 void ArtistWidget::onCellDoubleClicked(int row, int column)
@@ -347,6 +468,10 @@ void ArtistWidget::onCellDoubleClicked(int row, int column)
     if (artist.id().isEmpty()) {
         return;
     }
+    // 关键：立刻中止所有未完成的 getCoverArt，腾出 HTTP 连接槽让 getArtist 立即执行，
+    // 否则 QNAM 同主机并发数默认有限，40 个封面请求会把 artist 请求阻塞到队列尾部。
+    cancelPendingCoverArtRequests();
+    m_pendingCoverArtIds.clear();
     emit artistSelected(artist);
 }
 
@@ -364,12 +489,25 @@ void ArtistWidget::onCellClicked(int row, int column)
 
 void ArtistWidget::onCoverArtReceived(const QString &coverArtId, const QByteArray &data)
 {
+    m_pendingCoverArtIds.remove(coverArtId);
     if (!m_tableWidget || coverArtId.isEmpty()) {
         return;
     }
 
-    const int row = m_coverArtRowMap.value(coverArtId, -1);
-    if (row < 0 || row >= m_tableWidget->rowCount()) {
+    // 通过 avatar 列 (col 0) 匹配 Qt::UserRole+1 里存的 coverArtId 直接定位视觉行。
+    // 优点：跨排序 / 搜索 / 行隐藏仍然稳定命中，O(N) 扫 avatar 项，不依赖构建期的 row。
+    int targetRow = -1;
+    for (int visualRow = 0; visualRow < m_tableWidget->rowCount(); ++visualRow) {
+        const QTableWidgetItem *avatarItem = m_tableWidget->item(visualRow, 0);
+        if (!avatarItem) {
+            continue;
+        }
+        if (avatarItem->data(Qt::UserRole + 1).toString() == coverArtId) {
+            targetRow = visualRow;
+            break;
+        }
+    }
+    if (targetRow < 0) {
         return;
     }
 
@@ -379,7 +517,7 @@ void ArtistWidget::onCoverArtReceived(const QString &coverArtId, const QByteArra
     }
 
     const QPixmap rounded = roundedPixmap(pixmap, QSize(kAvatarSize, kAvatarSize), kAvatarRadius);
-    QTableWidgetItem *avatarItem = m_tableWidget->item(row, 0);
+    QTableWidgetItem *avatarItem = m_tableWidget->item(targetRow, 0);
     if (avatarItem) {
         avatarItem->setIcon(QIcon(rounded));
     }

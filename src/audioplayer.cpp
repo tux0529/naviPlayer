@@ -34,6 +34,7 @@ void AudioPlayer::play(const Song &song, const QString &streamUrl)
         return;
     }
 
+    emitTrackAboutToChange();
     stop();
 
     m_currentSong = song;
@@ -76,6 +77,42 @@ void AudioPlayer::playPlaylist(const QVector<Song> &songs, const QStringList &st
     emit currentIndexChanged(m_currentIndex);
 
     playSongAt(m_currentIndex);
+}
+
+void AudioPlayer::restoreSession(const QVector<Song> &songs, const QStringList &streamUrls,
+                                int startIndex, qint64 position, PlayMode playMode)
+{
+    if (songs.size() != streamUrls.size() || songs.isEmpty()
+            || startIndex < 0 || startIndex >= songs.size()) {
+        return;
+    }
+
+    stop();
+
+    m_playlist = songs;
+    m_streamUrls = streamUrls;
+    m_currentIndex = startIndex;
+    m_playMode = playMode;
+
+    if (m_playMode == Shuffle) {
+        generateShuffleIndices();
+    }
+
+    m_currentSong = m_playlist[startIndex];
+
+    emit playlistChanged(m_playlist);
+    emit currentIndexChanged(m_currentIndex);
+    emit playModeChanged(m_playMode);
+
+    // 以暂停状态从指定进度恢复，等待用户继续播放
+    m_decoder->playPaused(m_streamUrls[startIndex], position);
+}
+
+void AudioPlayer::emitTrackAboutToChange()
+{
+    if (!m_currentSong.id().isEmpty()) {
+        emit trackAboutToChange(m_currentSong.id(), m_decoder->position());
+    }
 }
 
 void AudioPlayer::addToPlaylist(const Song &song, const QString &streamUrl)
@@ -240,6 +277,7 @@ void AudioPlayer::playSongAt(int index)
         return;
     }
 
+    emitTrackAboutToChange();
     stop();
 
     m_currentIndex = index;

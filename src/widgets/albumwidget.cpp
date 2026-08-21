@@ -19,6 +19,13 @@
 namespace {
 constexpr int kAlbumCoverThumbnailSize = 120;
 constexpr qreal kAlbumCoverRadius = 8.0;
+// 单元格宽度 = cover(160) + 左右间距覆盖在 spacing(20) + 卡片内边距(0) → 设 180 保证一致
+constexpr int kAlbumCardWidth = 180;
+constexpr int kAlbumCardHeight = 250;
+constexpr int kLayoutHSpacing = 20;
+constexpr int kLayoutHMargins = 20;
+constexpr int kMinColumns = 2;
+}
 
 QString albumThumbCacheKey(const QString &coverArtId)
 {
@@ -87,7 +94,6 @@ protected:
 private:
     QToolButton *m_playButton;
 };
-}
 
 AlbumWidget::AlbumWidget(QWidget *parent)
     : QWidget(parent)
@@ -117,6 +123,7 @@ void AlbumWidget::setupUI()
     m_scrollArea = new QScrollArea(this);
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setFrameShape(QFrame::NoFrame);
+    m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setStyleSheet(R"(
         QScrollArea {
             background-color: #1e1e1e;
@@ -130,15 +137,14 @@ void AlbumWidget::setupUI()
     m_contentWidget = new QWidget();
     m_contentWidget->setStyleSheet("background-color: #1e1e1e;");
     m_gridLayout = new QGridLayout(m_contentWidget);
-    m_gridLayout->setSpacing(20);
-    m_gridLayout->setContentsMargins(20, 20, 20, 20);
+    m_gridLayout->setHorizontalSpacing(kLayoutHSpacing);
+    m_gridLayout->setVerticalSpacing(20);
+    m_gridLayout->setContentsMargins(kLayoutHMargins, 20, kLayoutHMargins, 20);
 
     m_scrollArea->setWidget(m_contentWidget);
     layout->addWidget(m_scrollArea);
 
     connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
-            this, [this]() { requestVisibleCovers(); });
-    connect(m_scrollArea->horizontalScrollBar(), &QScrollBar::valueChanged,
             this, [this]() { requestVisibleCovers(); });
 }
 
@@ -157,6 +163,29 @@ void AlbumWidget::clear()
     updateUI();
 }
 
+void AlbumWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    // 列数变化则重新布局，保证不溢出
+    if (!m_albums.isEmpty()) {
+        updateUI();
+    }
+}
+
+int AlbumWidget::computeColumns() const
+{
+    if (!m_scrollArea || !m_scrollArea->viewport()) {
+        return 4;
+    }
+    const int availableWidth = m_scrollArea->viewport()->width() - 2 * kLayoutHMargins;
+    if (availableWidth <= kAlbumCardWidth) {
+        return kMinColumns;
+    }
+    int columns = (availableWidth + kLayoutHSpacing) / (kAlbumCardWidth + kLayoutHSpacing);
+    columns = qMax(kMinColumns, columns);
+    return columns;
+}
+
 void AlbumWidget::updateUI()
 {
     m_coverLabels.clear();
@@ -168,13 +197,15 @@ void AlbumWidget::updateUI()
         delete item;
     }
 
+    const int columns = computeColumns();
+
     // Add new album items
     for (int i = 0; i < m_albums.size(); ++i) {
         const Album &album = m_albums[i];
 
         // Create album container widget - use ClickableWidget
         ClickableWidget *albumWidget = new ClickableWidget(i, this);
-        albumWidget->setFixedSize(180, 250);
+        albumWidget->setFixedSize(kAlbumCardWidth, kAlbumCardHeight);
 
         // Connect the click signal
         connect(albumWidget, &ClickableWidget::clicked,
@@ -302,12 +333,13 @@ void AlbumWidget::updateUI()
         albumWidget->setCursor(Qt::PointingHandCursor);
 
         // Add to grid
-        m_gridLayout->addWidget(albumWidget, i / 4, i % 4);
+        m_gridLayout->addWidget(albumWidget, i / columns, i % columns);
     }
 
     // Add stretch at bottom
+    const int lastRow = m_albums.isEmpty() ? 0 : (m_albums.size() - 1) / columns + 1;
     m_gridLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding),
-                         m_albums.size() / 4 + 1, 0, 1, 4);
+                         lastRow, 0, 1, columns);
 
     requestVisibleCovers();
 }

@@ -22,7 +22,8 @@ class DecodeThread : public QThread
 {
     Q_OBJECT
 public:
-    DecodeThread(const QString &url, QIODevice *audioDevice, QObject *parent = nullptr);
+    DecodeThread(const QString &url, QIODevice *audioDevice, QObject *parent = nullptr,
+                 qint64 startPositionMs = 0, bool startPaused = false);
     ~DecodeThread();
 
     void stop();
@@ -45,6 +46,8 @@ private:
     QWaitCondition m_waitCondition;
     bool m_isStopped;
     bool m_isPaused;
+    qint64 m_startPositionMs;
+    bool m_startPaused;
 };
 
 class FFmpegAudioDecoder : public QObject
@@ -58,6 +61,8 @@ public:
     bool open(const QString &url);
     void close();
     void play();
+    // 以暂停状态从指定位置启动播放，用于恢复播放进度
+    void playPaused(const QString &url, qint64 startPositionMs);
     void pause();
     void resume();
     void stop();
@@ -97,6 +102,8 @@ private:
     qint64 m_totalDuration;
     int m_volume;
     quint64 m_playbackToken;
+    // 恢复播放进度场景下，进度由解码线程 pts 驱动而非 audioSink 进度
+    bool m_positionFromPts;
 
     QTimer *m_positionTimer;
 };

@@ -35,6 +35,12 @@ public:
     bool savePlayState(const QString &songId, qint64 position);
     qint64 loadPlayState(const QString &songId);
 
+    // 保存/恢复播放会话：播放队列、当前索引、播放进度、播放模式
+    bool savePlaybackSession(const QVector<Song> &songs, int currentIndex,
+                             qint64 position, int playMode);
+    bool loadPlaybackSession(QVector<Song> *songs, int *currentIndex,
+                             qint64 *position, int *playMode);
+
     bool savePlaylist(const Playlist &playlist);
     bool deletePlaylist(const QString &playlistId);
     QVector<Playlist> getPlaylists();

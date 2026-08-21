@@ -4,12 +4,15 @@
 #include <QThread>
 
 // 解码线程实现
-DecodeThread::DecodeThread(const QString &url, QIODevice *audioDevice, QObject *parent)
+DecodeThread::DecodeThread(const QString &url, QIODevice *audioDevice, QObject *parent,
+                           qint64 startPositionMs, bool startPaused)
     : QThread(parent)
     , m_url(url)
     , m_audioDevice(audioDevice)
     , m_isStopped(false)
     , m_isPaused(false)
+    , m_startPositionMs(startPositionMs)
+    , m_startPaused(startPaused)
 {
 }
 
@@ -138,10 +141,29 @@ void DecodeThread::run()
     qint64 totalDuration = (formatCtx->duration / AV_TIME_BASE) * 1000;
     emit durationChanged(totalDuration);
 
+    qint64 currentPosition = 0;
+
+    // 恢复播放进度：seek 到起始位置并刷新解码器
+    if (m_startPositionMs > 0) {
+        const int64_t seekTargetUs = static_cast<int64_t>(m_startPositionMs) * 1000;
+        if (avformat_seek_file(formatCtx, -1, 0, seekTargetUs, seekTargetUs,
+                               AVSEEK_FLAG_BACKWARD) >= 0) {
+            avcodec_flush_buffers(codecCtx);
+            currentPosition = m_startPositionMs;
+            emit positionChanged(currentPosition);
+        } else {
+            qDebug() << "Seek to" << m_startPositionMs << "ms failed, start from beginning";
+        }
+    }
+
+    // 启动即暂停：用于恢复时停留在指定进度，等待用户继续播放
+    if (m_startPaused) {
+        QMutexLocker locker(&m_mutex);
+        m_isPaused = true;
+    }
+
     AVPacket *pkt = av_packet_alloc();
     AVFrame *frame = av_frame_alloc();
-
-    qint64 currentPosition = 0;
 
     // 解码循环
     while (!isInterruptionRequested()) {
@@ -289,6 +311,7 @@ FFmpegAudioDecoder::FFmpegAudioDecoder(QObject *parent)
     , m_totalDuration(0)
     , m_volume(80)
     , m_playbackToken(0)
+    , m_positionFromPts(false)
     , m_positionTimer(nullptr)
 {
     m_positionTimer = new QTimer(this);
@@ -329,7 +352,10 @@ void FFmpegAudioDecoder::play()
     if (m_isPaused && m_decodeThread) {
         m_decodeThread->resume();
         m_isPaused = false;
-        m_positionTimer->start(100);
+        // 恢复进度场景下进度由 pts 驱动，不轮询 audioSink 进度
+        if (!m_positionFromPts) {
+            m_positionTimer->start(100);
+        }
         emit stateChanged(true);
         return;
     }
@@ -337,6 +363,7 @@ void FFmpegAudioDecoder::play()
     // 开始新的播放
     m_isPlaying = true;
     m_isPaused = false;
+    m_positionFromPts = false;
     m_currentPosition = 0;
     const quint64 playbackToken = ++m_playbackToken;
 
@@ -383,6 +410,62 @@ void FFmpegAudioDecoder::play()
     emit stateChanged(true);
 }
 
+void FFmpegAudioDecoder::playPaused(const QString &url, qint64 startPositionMs)
+{
+    stop();
+    cleanup();
+
+    m_currentUrl = url;
+    m_currentPosition = startPositionMs;
+    m_totalDuration = 0;
+
+    m_isPlaying = true;
+    m_isPaused = true;
+    m_positionFromPts = true;
+    const quint64 playbackToken = ++m_playbackToken;
+
+    configurePcm16StereoAudioFormat(&m_audioFormat);
+    setupAudioOutput();
+
+    m_decodeThread = new DecodeThread(m_currentUrl, m_audioDevice, this,
+                                      startPositionMs, true);
+    connect(m_decodeThread, &DecodeThread::positionChanged, this, [this, playbackToken](qint64 pos) {
+        if (playbackToken != m_playbackToken) {
+            return;
+        }
+        m_currentPosition = pos;
+        emit positionChanged(pos);
+    });
+    connect(m_decodeThread, &DecodeThread::durationChanged, this, [this, playbackToken](qint64 duration) {
+        if (playbackToken != m_playbackToken) {
+            return;
+        }
+        m_totalDuration = duration;
+        emit durationChanged(duration);
+    });
+    connect(m_decodeThread, &DecodeThread::finished, this, [this, playbackToken]() {
+        if (playbackToken != m_playbackToken) {
+            return;
+        }
+        m_isPlaying = false;
+        m_isPaused = false;
+        m_positionFromPts = false;
+        m_positionTimer->stop();
+        emit stateChanged(false);
+        emit finished();
+    });
+    connect(m_decodeThread, &DecodeThread::errorOccurred, this, [this, playbackToken](const QString &error) {
+        if (playbackToken != m_playbackToken) {
+            return;
+        }
+        emit errorOccurred(error);
+    });
+
+    m_decodeThread->start();
+    // 暂停状态下不轮询 audioSink 进度，进度完全由解码线程 pts 驱动
+    emit stateChanged(false);
+}
+
 void FFmpegAudioDecoder::pause()
 {
     if (m_isPlaying && !m_isPaused && m_decodeThread) {
@@ -421,6 +504,7 @@ void FFmpegAudioDecoder::stop()
 
     m_isPlaying = false;
     m_isPaused = false;
+    m_positionFromPts = false;
     m_currentPosition = 0;
     emit stateChanged(false);
 }
@@ -466,7 +550,7 @@ qint64 FFmpegAudioDecoder::duration() const
 
 void FFmpegAudioDecoder::updatePlaybackPosition()
 {
-    if (!m_isPlaying || m_isPaused || !m_audioSink) {
+    if (!m_isPlaying || m_isPaused || !m_audioSink || m_positionFromPts) {
         return;
     }
 

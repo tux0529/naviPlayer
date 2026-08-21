@@ -8,6 +8,56 @@
 #include <QUrlQuery>
 #include <QUuid>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonParseError>
+
+namespace {
+constexpr const char *kPlaybackSessionKey = "playbackSession";
+
+QJsonObject songToJson(const Song &song)
+{
+    QJsonObject obj;
+    obj["id"] = song.id();
+    obj["title"] = song.title();
+    obj["artist"] = song.artist();
+    obj["album"] = song.album();
+    obj["album_id"] = song.albumId();
+    obj["artist_id"] = song.artistId();
+    obj["track"] = song.track();
+    obj["year"] = song.year();
+    obj["genre"] = song.genre();
+    obj["duration"] = static_cast<double>(song.duration());
+    obj["size"] = static_cast<double>(song.size());
+    obj["suffix"] = song.suffix();
+    obj["content_type"] = song.contentType();
+    obj["cover_art_id"] = song.coverArtId();
+    obj["path"] = song.path();
+    return obj;
+}
+
+Song songFromJson(const QJsonObject &obj)
+{
+    Song song;
+    song.setId(obj.value("id").toString());
+    song.setTitle(obj.value("title").toString());
+    song.setArtist(obj.value("artist").toString());
+    song.setAlbum(obj.value("album").toString());
+    song.setAlbumId(obj.value("album_id").toString());
+    song.setArtistId(obj.value("artist_id").toString());
+    song.setTrack(obj.value("track").toInt());
+    song.setYear(obj.value("year").toInt());
+    song.setGenre(obj.value("genre").toString());
+    song.setDuration(static_cast<qint64>(obj.value("duration").toDouble()));
+    song.setSize(static_cast<qint64>(obj.value("size").toDouble()));
+    song.setSuffix(obj.value("suffix").toString());
+    song.setContentType(obj.value("content_type").toString());
+    song.setCoverArtId(obj.value("cover_art_id").toString());
+    song.setPath(obj.value("path").toString());
+    return song;
+}
+}
 
 DatabaseManager::DatabaseManager(QObject *parent)
     : QObject(parent)
@@ -362,6 +412,78 @@ qint64 DatabaseManager::loadPlayState(const QString &songId)
     }
 
     return 0;
+}
+
+bool DatabaseManager::savePlaybackSession(const QVector<Song> &songs, int currentIndex,
+                                          qint64 position, int playMode)
+{
+    QJsonArray songsArray;
+    for (const Song &song : songs) {
+        songsArray.append(songToJson(song));
+    }
+
+    QJsonObject session;
+    session["songs"] = songsArray;
+    session["currentIndex"] = currentIndex;
+    session["position"] = static_cast<double>(position);
+    session["playMode"] = playMode;
+
+    const QByteArray data = QJsonDocument(session).toJson(QJsonDocument::Compact);
+    return saveConfig(kPlaybackSessionKey, QString::fromUtf8(data));
+}
+
+bool DatabaseManager::loadPlaybackSession(QVector<Song> *songs, int *currentIndex,
+                                          qint64 *position, int *playMode)
+{
+    if (!songs || !currentIndex || !position || !playMode) {
+        return false;
+    }
+
+    songs->clear();
+    *currentIndex = -1;
+    *position = 0;
+    *playMode = 0;
+
+    const QVariant raw = loadConfig(kPlaybackSessionKey);
+    if (!raw.isValid() || raw.toString().isEmpty()) {
+        return false;
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument doc = QJsonDocument::fromJson(raw.toString().toUtf8(), &parseError);
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+        return false;
+    }
+
+    const QJsonObject session = doc.object();
+
+    const QJsonArray songsArray = session.value("songs").toArray();
+    QVector<Song> loadedSongs;
+    loadedSongs.reserve(songsArray.size());
+    for (const QJsonValue &value : songsArray) {
+        if (!value.isObject()) {
+            continue;
+        }
+        Song song = songFromJson(value.toObject());
+        if (!song.id().isEmpty()) {
+            loadedSongs.append(song);
+        }
+    }
+
+    if (loadedSongs.isEmpty()) {
+        return false;
+    }
+
+    const int loadedIndex = session.value("currentIndex").toInt(-1);
+    if (loadedIndex < 0 || loadedIndex >= loadedSongs.size()) {
+        return false;
+    }
+
+    *songs = loadedSongs;
+    *currentIndex = loadedIndex;
+    *position = static_cast<qint64>(session.value("position").toDouble(0.0));
+    *playMode = session.value("playMode").toInt(0);
+    return true;
 }
 
 bool DatabaseManager::savePlaylist(const Playlist &playlist)
