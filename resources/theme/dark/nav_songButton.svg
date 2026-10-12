@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" width="64" height="64" enable-background="new 0 0 64 64" version="1.1" viewBox="0 0 64 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+<g id="g1" transform="translate(-12 -10)" fill="none" stroke="#006cff" stroke-miterlimit="10" stroke-width="5">
+	<path id="path1" d="m62 49c-1-.6-3-.8-5-.5-5 .7-8 5-8 9 .6 4 5 7 10 6s8-4 8-9v-38l-31 5v38c0 4-3 8-8 9-5 .7-9-2-10-6-.6-4 3-8 8-9 2-.3 4-.06 5 .5" stroke-linecap="round" stroke-linejoin="round"/>
+	<line id="line1" x1="36" x2="67" y1="33" y2="29"/>
+</g>
+</svg>

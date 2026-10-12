@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" width="64" height="64" version="1.1" viewBox="0 0 64 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+<g id="g4" transform="translate(-10 -9)" fill="none" stroke="#7c7c7c" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="5">
+<line id="line1" x1="58" x2="27" y1="26" y2="26"/><line id="line2" x1="58" x2="27" y1="35" y2="35"/><line id="line3" x1="44" x2="27" y1="43" y2="43"/><path id="path3" d="m48 55h16c3 0 5-2 5-5v-30c0-3-2-5-5-5h-44c-3 0-5 2-5 5v30c0 3 2 5 5 5h7v15l13-15"/>
+</g>
+</svg>

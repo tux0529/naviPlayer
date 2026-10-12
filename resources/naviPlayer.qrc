@@ -1,0 +1,48 @@
+<RCC>
+    <qresource prefix="/">
+        <file>theme/dark-style.qss</file>
+        <file>theme/light-style.qss</file>
+        <file>theme/dark/nav_homeButton.svg</file>
+        <file>theme/dark/nav_artistButton.svg</file>
+        <file>theme/dark/nav_songButton.svg</file>
+        <file>theme/dark/nav_albumListButton.svg</file>
+        <file>theme/dark/nav_playlistButton.svg</file>
+        <file>theme/dark/nav_settingButton.svg</file>
+        <file>theme/dark/nav_favSongButton.svg</file>
+        <file>theme/dark/nav_favAlbumButton.svg</file>
+        <file>theme/dark/nav_favArtistButton.svg</file>
+        <file>theme/dark/nav_cachedSongButton.svg</file>
+        <file>theme/dark/ctrl_lyrics.svg</file>
+        <file>theme/dark/ctrl_playbackqueue.svg</file>
+        <file>theme/dark/ctrl_prevPageButton.svg</file>
+        <file>theme/dark/ctrl_prevSongButton.svg</file>
+        <file>theme/dark/ctrl_playButton.svg</file>
+        <file>theme/dark/ctrl_pauseButton.svg</file>
+        <file>theme/dark/ctrl_nextSong.svg</file>
+        <file>theme/dark/ctrl_volume.svg</file>
+        <file>theme/dark/close.svg</file>
+        <file>theme/dark/fullscreen.svg</file>
+        <file>theme/dark/maximize.svg</file>
+        <file>theme/dark/minimize.svg</file>
+        <file>theme/dark/restore.svg</file>
+        <file>theme/dark/more-line.svg</file>
+        <file>theme/dark/pin.svg</file>
+        <file>theme/dark/pin-fill.svg</file>
+        <file>theme/light/nav_homeButton.svg</file>
+        <file>theme/light/nav_artistButton.svg</file>
+        <file>theme/light/nav_songButton.svg</file>
+        <file>theme/light/nav_albumListButton.svg</file>
+        <file>theme/light/close.svg</file>
+        <file>theme/light/fullscreen.svg</file>
+        <file>theme/light/maximize.svg</file>
+        <file>theme/light/minimize.svg</file>
+        <file>theme/light/restore.svg</file>
+        <file>theme/light/more-line.svg</file>
+        <file>theme/light/pin.svg</file>
+        <file>theme/light/pin-fill.svg</file>
+        <file>icons/naviPlayer.png</file>
+    </qresource>
+    <qresource prefix="/test">
+        <file>test/album.webp</file>
+    </qresource>
+</RCC>

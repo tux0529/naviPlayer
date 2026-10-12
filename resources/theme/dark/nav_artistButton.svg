@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" width="64" height="64" enable-background="new 0 0 64 64" version="1.1" viewBox="0 0 64 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+<g id="g6" transform="translate(-11 -10)" fill="none" stroke="#006cff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="5">
+<g id="g2" stroke-linejoin="round">
+<path id="path1" d="m58 41v-12c-.2-17-15-16-15-16s-15-1-15 16v12"/>
+<path id="path2" d="m34 30c0 7 4 14 9 14 5 0 9-7 9-14 0 0 .3-5-2-8 0 0-5 6-21 7"/>
+</g>
+<g id="g5">
+<path id="path3" d="m32 48-6 1s-7 1-8 7l-1 16"/>
+<polyline id="pl3" points="42 66 35 45 27 54 32 54" stroke-linejoin="round"/>
+<g id="g4">
+<path id="path4" d="m53 48 6 1s7 1 8 7l1 16"/>
+<polyline id="pl4" points="43 66 50 45 58 54 53 54" stroke-linejoin="round"/>
+</g>
+</g>
+</g>
+</svg>

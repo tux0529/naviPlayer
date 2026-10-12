@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" width="64" height="64" enable-background="new 0 0 64 64" version="1.1" viewBox="0 0 64 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+<g id="g4" transform="translate(-12 -11)" fill="none" stroke="#006cff" stroke-miterlimit="10" stroke-width="5">
+<path id="path1" d="m48 58 7 4 17-27c4-6 2-15-4-19s-15-2-19 5l-2 4-4-2c-6-4-15-2-19 4-1 2-2 4-2 7" stroke-linejoin="round"/>
+
+</g>
+<g id="g2" transform="matrix(.7 0 0 .7 -7 16)" fill="none" stroke="#006cff" stroke-linejoin="round" stroke-width="5">
+	<path id="path1-2" d="m42 22c.04 0 .08-.006.1-.006 9 0 17 6 19 15"/>
+	<path id="path2-3" d="m55 39c-2-6-7-10-13-10-.04 0-.08.005-.1.006"/>
+<path id="path3-9" d="m70 42c0 15-12 28-28 28-15 0-28-12-28-28s12-28 28-28c15 .001 28 12 28 28z"/><circle id="circle3" cx="42" cy="42" r="7"/></g></svg>
